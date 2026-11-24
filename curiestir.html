@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Marie & Pierre Curie: 10 Tons to 0.1 Grams (1898–1902)</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b24;
+    --panel-2: #1f2736;
+    --border: #303b4e;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38d9a9;
+    --radium: #4ade80;
+    --polonium: #38bdf8;
+    --amber: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100%;
+    padding: 8px;
+    gap: 8px;
+    position: relative;
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    flex-shrink: 0;
+  }
+  .title-wrap { display: flex; align-items: center; gap: 10px; }
+  .title-wrap h1 { font-size: 15px; font-weight: 700; color: #fff; }
+  .pill-tag {
+    font-size: 11px;
+    font-weight: 600;
+    background: #1e293b;
+    color: var(--accent);
+    border: 1px solid #2d4a43;
+    padding: 2px 9px;
+    border-radius: 99px;
+  }
+
+  .stage-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stage-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 5px;
+    background: var(--panel-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .stage-chip:hover { color: #fff; border-color: #4b5d7a; }
+  .stage-chip.active {
+    background: #133b2e;
+    border-color: var(--accent);
+    color: #a7f3d0;
+  }
+
+  /* Main 2-Column Stage */
+  .stage {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 285px;
+    gap: 8px;
+  }
+
+  .left-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .bench-wrap {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: linear-gradient(180deg, #131924 0%, #0b0e14 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Upper Explanation Cards */
+  .story-banner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(15, 20, 29, 0.94);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .story-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .story-box.highlight {
+    border-color: #2f574c;
+    background: #121f22;
+  }
+  .story-kicker {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--amber);
+  }
+  .story-box.highlight .story-kicker { color: var(--accent); }
+  .story-heading {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .story-desc {
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: #cbd5e1;
+  }
+
+  .canvas-holder {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+  }
+
+  #shedCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+  #shedCanvas:active { cursor: grabbing; }
+
+  /* Bottom Control Dock */
+  .dock {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .dock-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dock-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .btn {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #2a3548; border-color: #4b5d7a; }
+  .btn.active { background: #133b2e; border-color: var(--accent); color: #a7f3d0; }
+  .btn.amber { background: #422c0c; border-color: var(--amber); color: #fde68a; }
+  .btn.amber:hover { background: #573a10; }
+  .btn.auto-on {
+    background: #5c3a0a;
+    border-color: #fbbf24;
+    color: #fef3c7;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+  }
+  .btn.quiz-btn { background: #14324d; border-color: var(--polonium); color: #bae6fd; }
+
+  /* Right Sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: #133b2e;
+    color: var(--radium);
+    border: 1px solid #2b5c49;
+    font-weight: 700;
+  }
+
+  .meter-wrap {
+    height: 98px;
+    position: relative;
+    background: #080b10;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  #meterCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .collected-hero {
+    background: #101923;
+    border: 1px solid #2b4c43;
+    border-radius: 7px;
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .collected-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .collected-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--radium);
+  }
+  .collected-sub {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  /* Prominent Hours of Stirring Box + Cycles Box */
+  .hours-hero {
+    background: #221910;
+    border: 1px solid #6b4719;
+    border-radius: 7px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .hours-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .hours-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fcd34d;
+  }
+  .hours-big {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fbbf24;
+    line-height: 1.1;
+  }
+  .cycles-pill {
+    text-align: right;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+  }
+  .cycles-lbl { font-size: 9.5px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+  .cycles-val { font-size: 12.5px; font-weight: 800; color: #f8fafc; margin-top: 1px; }
+
+  .legend-card {
+    flex: 1;
+    min-height: 0;
+    justify-content: center;
+    background: #121822;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: #e2e8f0;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Student Check-In Modal */
+  .modal-backdrop {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 10, 15, 0.84);
+    backdrop-filter: blur(3px);
+    z-index: 20;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+
+  .modal-box {
+    background: var(--panel);
+    border: 1px solid #3b4b66;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 92%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+  }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-head h2 { font-size: 14px; font-weight: 700; }
+  .modal-body {
+    padding: 12px 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .q-card {
+    background: #121720;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .q-title { font-size: 12px; font-weight: 700; color: #f1f5f9; }
+  .q-opts { display: flex; flex-direction: column; gap: 4px; }
+  .opt-btn {
+    text-align: left;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 9px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .opt-btn:hover { background: #283347; }
+  .opt-btn.correct { background: #133b2e; border-color: var(--accent); color: #a7f3d0; }
+  .opt-btn.wrong { background: #3b1619; border-color: var(--danger); color: #fecaca; }
+  .q-feedback {
+    font-size: 11.5px;
+    line-height: 1.35;
+    display: none;
+  }
+  .q-feedback.show { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Clean Top Bar -->
+  <header class="topbar">
+    <div class="title-wrap">
+      <h1>Marie &amp; Pierre Curie (1898–1902)</h1>
+      <span class="pill-tag">10 Tons Rock → 0.1 g Pure Radium</span>
+    </div>
+    <div class="stage-dots">
+      <button class="stage-chip active" id="nav0" onclick="jumpToStage(0)">1. Boil Ore</button>
+      <button class="stage-chip" id="nav1" onclick="jumpToStage(1)">2. Dump Mud</button>
+      <button class="stage-chip" id="nav2" onclick="jumpToStage(2)">3. Split Po/Ra</button>
+      <button class="stage-chip" id="nav3" onclick="jumpToStage(3)">4. Crystallize</button>
+      <button class="stage-chip" id="nav4" onclick="jumpToStage(4)">5. Pure Vial</button>
+    </div>
+  </header>
+
+  <!-- Main Stage -->
+  <main class="stage">
+    <!-- Left: Story Banner + Shed Scene + Bottom Dock -->
+    <section class="left-col">
+      <div class="bench-wrap">
+        <div class="story-banner">
+          <div class="story-box">
+            <div class="story-kicker" id="stepKicker">Step 1 of 5 • Boiling 10 Tons of Rock</div>
+            <div class="story-heading" id="stepHeading">Dissolve Pitchblende Ore in Boiling Acid</div>
+            <div class="story-desc" id="stepDesc">
+              Pitchblende is 4× more radioactive than uranium—proving tiny traces of unknown elements are locked inside the rock.
+            </div>
+          </div>
+          <div class="story-box highlight">
+            <div class="story-kicker">Why Is Marie Stirring?</div>
+            <div class="story-heading" id="whyHeading">To Pull Invisible Atoms Out of Solid Rock</div>
+            <div class="story-desc" id="whyDesc">
+              Stirring in boiling acid dissolves radium &amp; polonium into the liquid (colored dots) while heavy waste mud (grey dots) sinks.
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-holder">
+          <canvas id="shedCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="dock">
+        <div class="dock-group">
+          <span class="dock-label">Element:</span>
+          <button id="raBtn" class="btn active" onclick="setBranch('radium')">Radium (Ra)</button>
+          <button id="poBtn" class="btn" onclick="setBranch('polonium')">Polonium (Po)</button>
+        </div>
+
+        <div class="dock-group">
+          <button id="autoStirBtn" class="btn amber" onclick="toggleAutoStir()">Auto-Stir: OFF</button>
+          <button id="quizToggleBtn" class="btn quiz-btn" onclick="toggleQuiz(true)">Check-In Quiz (0/3)</button>
+          <button class="btn" onclick="resetLab()">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Detector + Collected Material + Big Hours Counter + Key -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-header">
+          <span>Pierre's Radiation Meter</span>
+          <span id="activityBadge" class="badge">4× Uranium</span>
+        </div>
+        <div class="meter-wrap">
+          <canvas id="meterCanvas"></canvas>
+        </div>
+
+        <div class="collected-hero">
+          <div class="collected-label" id="collectedTitle">Collected Pure Radium (RaCl₂)</div>
+          <div class="collected-value" id="collectedValue">0.0000 g (None yet)</div>
+          <div class="collected-sub" id="collectedSub">Still locked inside 10,000 kg of raw rock</div>
+        </div>
+
+        <!-- Enlarged Hours of Stirring Readout -->
+        <div class="hours-hero">
+          <div class="hours-left">
+            <div class="hours-label">Hours of Stirring</div>
+            <div class="hours-big" id="hoursStat">0 hrs</div>
+          </div>
+          <div class="cycles-pill">
+            <div class="cycles-lbl">Crystal Cycles</div>
+            <div class="cycles-val" id="crystStat">0 / 400</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card legend-card">
+        <div class="card-header" style="margin-bottom:2px;">
+          <span>What You're Seeing</span>
+        </div>
+        <div class="legend-row">
+          <span class="dot" id="activeDot" style="background:var(--radium); box-shadow: 0 0 6px var(--radium);"></span>
+          <span id="activeDotLabel"><b>Green Dots:</b> Radium dissolving into acid</span>
+        </div>
+        <div class="legend-row">
+          <span class="dot" style="background:#78716c;"></span>
+          <span><b>Grey Dots:</b> Useless rock mud sinking to bottom</span>
+        </div>
+        <div class="legend-row">
+          <span class="dot" style="background:var(--amber);"></span>
+          <span><b>Stirring:</b> Drag Marie's rod or use <b>Auto-Stir</b></span>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Student Check-In Modal -->
+  <div id="quizModal" class="modal-backdrop" onclick="if(event.target===this) toggleQuiz(false)">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>Student Check-In: The Curies' Discovery</h2>
+        <button class="btn" onclick="toggleQuiz(false)">Back to Lab ✕</button>
+      </div>
+      <div class="modal-body" id="quizBody"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const shedCanvas = document.getElementById('shedCanvas');
+const sctx = shedCanvas.getContext('2d');
+const meterCanvas = document.getElementById('meterCanvas');
+const mctx = meterCanvas.getContext('2d');
+
+const STAGES = [
+  {
+    kicker: 'Step 1 of 5 • Boiling 10 Tons of Rock',
+    heading: 'Dissolve Pitchblende Ore in Boiling Acid',
+    desc: 'Pitchblende is 4× more radioactive than uranium—proving tiny traces of unknown elements are locked inside the rock.',
+    whyHeading: 'To Pull Invisible Atoms Out of Solid Rock',
+    whyDesc: 'Stirring in boiling acid dissolves radium & polonium into the liquid (colored dots) while heavy waste mud (grey dots) sinks.',
+    collectedRa: '0.0000 g (None yet)',
+    collectedPo: '0.0000 g (None yet)',
+    collectedSub: 'Still locked inside 10,000 kg of raw rock',
+    activityLabel: '4× Uranium',
+    activityRatio: 0.10,
+    crystCount: '0 / 400',
+    hours: 0,
+    liquidColor: '#422c1d'
+  },
+  {
+    kicker: 'Step 2 of 5 • Washing Away Waste Mud',
+    heading: 'Boil Down the Concentrated Chemical Soup',
+    desc: 'After draining the liquid away from tons of sunken waste mud, Marie boils down the remaining solution.',
+    whyHeading: 'To Keep Thick Sludge From Burning',
+    whyDesc: 'Without constant stirring with a heavy iron rod, the thick paste cakes onto the hot cauldron and traps the radioactive salts.',
+    collectedRa: '0.002 g (Trace)',
+    collectedPo: '0.00001 g (Trace)',
+    collectedSub: 'First impure crystals forming in the dish',
+    activityLabel: '60× Uranium',
+    activityRatio: 0.28,
+    crystCount: '0 / 400',
+    hours: 800,
+    liquidColor: '#5c3818'
+  },
+  {
+    kicker: 'Step 3 of 5 • Discovering Two New Elements',
+    heading: 'Separate Polonium (Po) from Radium (Ra)',
+    desc: 'Bubbling hydrogen sulfide gas makes Polonium (named for Poland) clump and sink, while Radium stays dissolved!',
+    whyHeading: 'To Mix Gas Evenly Through Every Drop',
+    whyDesc: 'Marie stirs continuously while bubbling gas through the pot so every polonium atom reacts and separates from the radium.',
+    collectedRa: '0.015 g (Impure)',
+    collectedPo: '0.0001 g (Impure)',
+    collectedSub: 'Separated into two distinct chemical tracks',
+    activityLabel: '400× Uranium',
+    activityRatio: 0.52,
+    crystCount: '15 / 400',
+    hours: 1600,
+    liquidColor: '#1f4959'
+  },
+  {
+    kicker: 'Step 4 of 5 • 400 Rounds of Crystallization',
+    heading: 'Separate Radium from Nearly Identical Barium',
+    desc: 'Radium and barium act almost the same chemically—only a tiny difference in solubility lets them separate.',
+    whyHeading: 'To Grow Pure Crystals Slowly',
+    whyDesc: 'Marie dissolves, stirs, boils, and cools the salt 400 separate times. Each cycle leaves slightly purer radium crystals at the bottom.',
+    collectedRa: '0.065 g (90% Pure)',
+    collectedPo: '0.0003 g (Decaying)',
+    collectedSub: 'Vial begins glowing visibly in the dark shed',
+    activityLabel: '120,000× Uranium',
+    activityRatio: 0.80,
+    crystCount: '260 / 400',
+    hours: 2400,
+    liquidColor: '#164e3f'
+  },
+  {
+    kicker: 'Step 5 of 5 • 1902: Four Years of Work Complete!',
+    heading: 'Just 0.1 Grams Isolated from 10 Tons of Ore',
+    desc: 'Look at the vanished 10-ton mountain on the left vs. the tiny glowing speck (0.1 g) collected in the vial on the right!',
+    whyHeading: 'A 100,000,000 : 1 Reduction',
+    whyDesc: 'The pure radium chloride glows blue-green in the dark and is 2,000,000× more radioactive than uranium. Polonium is even rarer (0.0004 g)!',
+    collectedRa: '0.100 g (Pure RaCl₂)',
+    collectedPo: '0.0004 g (Pure Po)',
+    collectedSub: '100% of 10,000 kg ore processed!',
+    activityLabel: '2,000,000× U',
+    activityRatio: 1.0,
+    crystCount: '400 / 400',
+    hours: 3200,
+    liquidColor: '#14532d'
+  }
+];
+
+const QUIZ_QUESTIONS = [
+  {
+    q: '1. Why did Marie Curie have to stir the boiling pitchblende ore for hours every day?',
+    options: [
+      'To melt solid rock into pure liquid uranium metal.',
+      'To dissolve tiny amounts of radium and polonium out of the rock into the acid so waste mud could be thrown away.',
+      'To cool the mixture down before Pierre tested it.'
+    ],
+    answer: 1,
+    explanation: 'Correct! Stirring in boiling acid unlocked the trapped radioactive atoms into the liquid so 99.999999% of the rock could be discarded.'
+  },
+  {
+    q: '2. How much pure radium chloride did the Curies collect from 10,000 kg (10 tons) of ore?',
+    options: [
+      'About 100 kg (3 full sacks)',
+      'About 10 kg (a heavy brick)',
+      'Just 0.1 grams (a tiny glowing speck at the bottom of a glass vial)'
+    ],
+    answer: 2,
+    explanation: 'Spot on! It took 10,000,000 grams of ore to collect 0.1 grams of pure radium chloride—a 100-million-to-1 ratio.'
+  },
+  {
+    q: '3. What two brand-new radioactive elements did Marie and Pierre Curie discover in pitchblende?',
+    options: [
+      'Polonium (named after Poland) and Radium',
+      'Uranium and Thorium',
+      'Barium and Bismuth'
+    ],
+    answer: 0,
+    explanation: 'Yes! Barium and bismuth were already known elements in the rock; hidden inside them were Polonium and Radium.'
+  }
+];
+
+const state = {
+  stage: 0,
+  branch: 'radium',
+  stirProgress: 0,
+  rodNorm: 0.5,
+  draggingRod: false,
+  lastRodNorm: 0.5,
+  autoStir: false,
+  autoPhase: 0,
+  steam: [],
+  atoms: [],
+  quizSolved: [false, false, false]
+};
+
+function resize() {
+  const sr = shedCanvas.parentElement.getBoundingClientRect();
+  shedCanvas.width = sr.width * devicePixelRatio;
+  shedCanvas.height = sr.height * devicePixelRatio;
+  sctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+  const mr = meterCanvas.parentElement.getBoundingClientRect();
+  meterCanvas.width = mr.width * devicePixelRatio;
+  meterCanvas.height = mr.height * devicePixelRatio;
+  mctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+for (let i = 0; i < 24; i++) {
+  state.steam.push({
+    x: (Math.random() - 0.5) * 0.12,
+    y: Math.random(),
+    r: 6 + Math.random() * 10
+  });
+}
+for (let i = 0; i < 28; i++) {
+  state.atoms.push({
+    x: Math.random(),
+    y: Math.random(),
+    isActive: i < 10,
+    vx: (Math.random() - 0.5) * 0.01,
+    vy: (Math.random() - 0.5) * 0.01
+  });
+}
+
+function buildQuiz() {
+  const body = document.getElementById('quizBody');
+  body.innerHTML = '';
+  QUIZ_QUESTIONS.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+
+    const title = document.createElement('div');
+    title.className = 'q-title';
+    title.textContent = item.q;
+    card.appendChild(title);
+
+    const opts = document.createElement('div');
+    opts.className = 'q-opts';
+
+    const fb = document.createElement('div');
+    fb.className = 'q-feedback';
+
+    item.options.forEach((optText, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = optText;
+      btn.onclick = () => {
+        opts.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('correct', 'wrong'));
+        if (oi === item.answer) {
+          btn.classList.add('correct');
+          fb.style.color = '#86efac';
+          fb.textContent = item.explanation;
+          fb.classList.add('show');
+          state.quizSolved[qi] = true;
+          updateQuizBadge();
+        } else {
+          btn.classList.add('wrong');
+          fb.style.color = '#fca5a5';
+          fb.textContent = 'Not quite—check the two boxes at the top of the shed and try again!';
+          fb.classList.add('show');
+        }
+      };
+      opts.appendChild(btn);
+    });
+
+    card.appendChild(opts);
+    card.appendChild(fb);
+    body.appendChild(card);
+  });
+}
+buildQuiz();
+
+function updateQuizBadge() {
+  const count = state.quizSolved.filter(Boolean).length;
+  const btn = document.getElementById('quizToggleBtn');
+  btn.textContent = `Check-In Quiz (${count}/3)`;
+  if (count === 3) {
+    btn.classList.remove('quiz-btn');
+    btn.classList.add('active');
+  }
+}
+
+function toggleQuiz(open) {
+  document.getElementById('quizModal').classList.toggle('open', open);
+}
+
+function setBranch(branch) {
+  state.branch = branch;
+  document.getElementById('raBtn').classList.toggle('active', branch === 'radium');
+  document.getElementById('poBtn').classList.toggle('active', branch === 'polonium');
+  updateUI();
+}
+
+function jumpToStage(idx) {
+  state.stage = idx;
+  state.stirProgress = idx === 4 ? 1 : 0;
+  if (idx === 4 && state.autoStir) toggleAutoStir(false);
+  updateUI();
+}
+
+function toggleAutoStir(forceVal) {
+  if (state.stage >= 4) {
+    state.autoStir = false;
+  } else {
+    state.autoStir = typeof forceVal === 'boolean' ? forceVal : !state.autoStir;
+  }
+  updateUI();
+}
+
+function resetLab() {
+  state.stage = 0;
+  state.stirProgress = 0;
+  state.autoStir = false;
+  state.branch = 'radium';
+  setBranch('radium');
+  updateUI();
+}
+
+function addStirWork(amount) {
+  if (state.stage >= 4) return;
+  state.stirProgress = Math.min(1, state.stirProgress + amount);
+  state.atoms.forEach(a => {
+    a.vx += (Math.random() - 0.5) * amount * 4;
+    a.vy += (Math.random() - 0.5) * amount * 4;
+  });
+  if (state.stirProgress >= 1) {
+    state.stage++;
+    state.stirProgress = state.stage === 4 ? 1 : 0;
+    if (state.stage === 4) {
+      state.autoStir = false;
+    }
+  }
+  updateUI();
+}
+
+function updateUI() {
+  const st = STAGES[state.stage];
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('nav' + i).classList.toggle('active', i === state.stage);
+  }
+
+  document.getElementById('stepKicker').textContent = st.kicker;
+  document.getElementById('stepHeading').textContent = st.heading;
+  document.getElementById('stepDesc').textContent = st.desc;
+  document.getElementById('whyHeading').textContent = st.whyHeading;
+  document.getElementById('whyDesc').textContent = st.whyDesc;
+
+  const isPo = state.branch === 'polonium' && state.stage >= 2;
+  const actText = isPo && state.stage >= 3 ? '400× U (Decays fast!)' : st.activityLabel;
+
+  const badge = document.getElementById('activityBadge');
+  badge.textContent = actText;
+  badge.style.color = isPo ? 'var(--polonium)' : 'var(--radium)';
+
+  document.getElementById('collectedTitle').textContent =
+    isPo ? 'Collected Pure Polonium (Po)' : 'Collected Pure Radium (RaCl₂)';
+  const colVal = document.getElementById('collectedValue');
+  colVal.textContent = isPo ? st.collectedPo : st.collectedRa;
+  colVal.style.color = state.stage === 0 ? '#94a3b8' : (isPo ? 'var(--polonium)' : 'var(--radium)');
+  document.getElementById('collectedSub').textContent = st.collectedSub;
+
+  document.getElementById('crystStat').textContent = st.crystCount;
+  const extraHrs = Math.round(state.stirProgress * 800);
+  document.getElementById('hoursStat').textContent = (st.hours + extraHrs).toLocaleString() + ' hrs';
+
+  const activeDot = document.getElementById('activeDot');
+  const activeDotLabel = document.getElementById('activeDotLabel');
+  if (isPo) {
+    activeDot.style.background = 'var(--polonium)';
+    activeDot.style.boxShadow = '0 0 6px var(--polonium)';
+    activeDotLabel.innerHTML = '<b>Blue Dots:</b> Polonium separating out';
+  } else {
+    activeDot.style.background = 'var(--radium)';
+    activeDot.style.boxShadow = '0 0 6px var(--radium)';
+    activeDotLabel.innerHTML = '<b>Green Dots:</b> Radium dissolving into acid';
+  }
+
+  const autoBtn = document.getElementById('autoStirBtn');
+  autoBtn.disabled = state.stage === 4;
+  autoBtn.style.opacity = state.stage === 4 ? '0.45' : '1';
+  autoBtn.textContent = state.autoStir ? 'Auto-Stir: ON (Pause)' : 'Auto-Stir: OFF';
+  autoBtn.classList.toggle('auto-on', state.autoStir);
+  autoBtn.classList.toggle('amber', !state.autoStir);
+}
+
+// Pointer Dragging for Marie's Stirring Rod
+function getPos(e) {
+  const rect = shedCanvas.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  return { x: cx / rect.width, y: cy / rect.height };
+}
+
+shedCanvas.addEventListener('pointerdown', (e) => {
+  const p = getPos(e);
+  if (p.x > 0.36 && p.x < 0.72 && p.y > 0.08 && p.y < 0.85) {
+    state.draggingRod = true;
+    state.lastRodNorm = Math.max(0, Math.min(1, (p.x - 0.42) / 0.18));
+  }
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (!state.draggingRod) return;
+  const p = getPos(e);
+  const newNorm = Math.max(0, Math.min(1, (p.x - 0.42) / 0.18));
+  const delta = Math.abs(newNorm - state.lastRodNorm);
+  state.rodNorm = newNorm;
+  state.lastRodNorm = newNorm;
+
+  if (state.stage < 4 && delta > 0.002) {
+    addStirWork(delta * 0.013);
+  }
+});
+
+window.addEventListener('pointerup', () => { state.draggingRod = false; });
+
+// Draw Enormous 10-Ton Mountain (325 Sacks)
+function drawTenTonMountain(w, h, floorY) {
+  const leftZoneW = w * 0.36;
+  const baseX = leftZoneW * 0.54;
+  const totalSacks = 325;
+
+  const overallProgress = state.stage >= 4 ? 1 : (state.stage + state.stirProgress) / 4;
+  const remaining = Math.round(totalSacks * (1 - overallProgress));
+  const remainingKg = Math.round(10000 * (1 - overallProgress));
+
+  const colsBottom = 25;
+  const sackW = Math.max(8, Math.min(13, (leftZoneW - 36) / colsBottom));
+  const sackH = Math.max(7, Math.min(11, (floorY - 14) / 25));
+
+  let idx = 0;
+  for (let row = 0; row < 25; row++) {
+    const cols = colsBottom - row;
+    const rowW = cols * (sackW + 1);
+    const startX = baseX - rowW / 2;
+    const sy = floorY - (row + 1) * (sackH + 1);
+
+    for (let c = 0; c < cols; c++) {
+      if (idx >= totalSacks) break;
+      const sx = startX + c * (sackW + 1);
+      const isUsed = idx >= remaining;
+
+      sctx.fillStyle = isUsed ? 'rgba(71, 85, 105, 0.10)' : ((row + c) % 2 === 0 ? '#73563a' : '#61472f');
+      sctx.strokeStyle = isUsed ? 'rgba(71, 85, 105, 0.22)' : '#a3815e';
+      sctx.lineWidth = 1;
+      sctx.beginPath();
+      sctx.roundRect(sx, sy, sackW, sackH, 2);
+      sctx.fill();
+      sctx.stroke();
+      idx++;
+    }
+  }
+
+  // Human-height scale ruler on far left
+  const rulerX = Math.max(22, baseX - (colsBottom * (sackW + 1)) / 2 - 6);
+  const mariePixelH = 140;
+  sctx.strokeStyle = '#64748b';
+  sctx.lineWidth = 1.5;
+  sctx.beginPath();
+  sctx.moveTo(rulerX, floorY);
+  sctx.lineTo(rulerX, floorY - mariePixelH);
+  sctx.moveTo(rulerX - 4, floorY - mariePixelH);
+  sctx.lineTo(rulerX + 4, floorY - mariePixelH);
+  sctx.stroke();
+
+  sctx.save();
+  sctx.translate(rulerX - 5, floorY - mariePixelH / 2);
+  sctx.rotate(-Math.PI / 2);
+  sctx.fillStyle = '#94a3b8';
+  sctx.font = 'bold 9px sans-serif';
+  sctx.textAlign = 'center';
+  sctx.fillText('Marie Height (1.6 m)', 0, 0);
+  sctx.restore();
+
+  // Floor labels
+  sctx.textAlign = 'center';
+  sctx.fillStyle = '#f8fafc';
+  sctx.font = 'bold 11px sans-serif';
+  sctx.fillText(
+    remainingKg > 0 ? `ORE PILE: ${remainingKg.toLocaleString()} kg left` : '10 TONS ORE: 100% Processed',
+    baseX,
+    floorY + 17
+  );
+  sctx.fillStyle = '#94a3b8';
+  sctx.font = '10px sans-serif';
+  sctx.fillText('Started at 10,000 kg (10 Tons)', baseX, floorY + 32);
+}
+
+// Draw Marie Curie Stirring
+function drawMarie(mx, floorY, rodTopX, rodTopY) {
+  const headY = floorY - 130;
+  const shoulderY = floorY - 106;
+  const waistY = floorY - 66;
+
+  sctx.fillStyle = '#1e293b';
+  sctx.strokeStyle = '#475569';
+  sctx.lineWidth = 1.5;
+  sctx.beginPath();
+  sctx.moveTo(mx - 11, waistY);
+  sctx.lineTo(mx + 11, waistY);
+  sctx.lineTo(mx + 20, floorY - 2);
+  sctx.lineTo(mx - 20, floorY - 2);
+  sctx.closePath();
+  sctx.fill();
+  sctx.stroke();
+
+  sctx.fillStyle = '#cbd5e1';
+  sctx.beginPath();
+  sctx.moveTo(mx - 9, waistY);
+  sctx.lineTo(mx + 4, waistY);
+  sctx.lineTo(mx + 7, floorY - 5);
+  sctx.lineTo(mx - 12, floorY - 5);
+  sctx.closePath();
+  sctx.fill();
+
+  const lean = (state.rodNorm - 0.5) * 6;
+  sctx.fillStyle = '#334155';
+  sctx.beginPath();
+  sctx.roundRect(mx - 11 - lean * 0.3, shoulderY, 22, 40, 6);
+  sctx.fill();
+
+  const hx = mx - lean * 0.5;
+  sctx.fillStyle = '#5c4033';
+  sctx.beginPath();
+  sctx.arc(hx + 10, headY - 4, 7, 0, Math.PI * 2);
+  sctx.fill();
+
+  sctx.fillStyle = '#f1c29b';
+  sctx.beginPath();
+  sctx.arc(hx, headY, 11, 0, Math.PI * 2);
+  sctx.fill();
+
+  sctx.fillStyle = '#5c4033';
+  sctx.beginPath();
+  sctx.arc(hx + 2, headY - 3, 11, Math.PI * 1.1, Math.PI * 0.15);
+  sctx.fill();
+
+  sctx.fillStyle = '#1e293b';
+  sctx.beginPath();
+  sctx.arc(hx - 6, headY - 1, 1.6, 0, Math.PI * 2);
+  sctx.fill();
+
+  if (state.draggingRod || state.autoStir || state.stirProgress > 0.15) {
+    sctx.fillStyle = '#38bdf8';
+    sctx.beginPath();
+    sctx.arc(hx - 13, headY - 3, 2.3, 0, Math.PI * 2);
+    sctx.fill();
+  }
+
+  sctx.strokeStyle = '#475569';
+  sctx.lineWidth = 6;
+  sctx.lineCap = 'round';
+  sctx.beginPath();
+  sctx.moveTo(mx - 5, shoulderY + 8);
+  sctx.lineTo(rodTopX, rodTopY);
+  sctx.stroke();
+
+  sctx.fillStyle = '#f1c29b';
+  sctx.beginPath();
+  sctx.arc(rodTopX, rodTopY, 4.5, 0, Math.PI * 2);
+  sctx.fill();
+
+  sctx.fillStyle = '#e2e8f0';
+  sctx.font = 'bold 11px sans-serif';
+  sctx.textAlign = 'center';
+  sctx.fillText('Marie Curie', mx + 4, floorY + 17);
+  sctx.fillStyle = '#94a3b8';
+  sctx.font = '9.5px sans-serif';
+  sctx.fillText('(Stirring)', mx + 4, floorY + 31);
+}
+
+// Draw Pierre Curie Anchored to His Lab Bench (Slides cohesively at any screen width!)
+function drawPierreAndDetector(vx, floorY, isPo, st) {
+  const tableTopY = floorY - 36;
+  const detX = vx - 34;
+  const tableLeft = detX - 22;
+  const tableRight = vx + 22;
+
+  // Lock Pierre's standing position to a fixed distance left of the table so his arm never stretches
+  const px = tableLeft - 14;
+
+  // Pierre leans forward naturally toward the electrometer & vial
+  const inspectPulse = Math.sin(performance.now() / 420) * 1.5;
+  const waistY = floorY - 64;
+  const shoulderX = px + 6 + inspectPulse;
+  const shoulderY = floorY - 102;
+  const headX = px + 14 + inspectPulse;
+  const headY = floorY - 122;
+
+  // Trousers
+  sctx.fillStyle = '#1e293b';
+  sctx.fillRect(px - 9, waistY, 8, floorY - waistY - 2);
+  sctx.fillRect(px + 1, waistY, 8, floorY - waistY - 2);
+
+  // Dark 1898 suit coat tilted forward toward the right-hand bench
+  sctx.save();
+  sctx.translate(px, waistY);
+  sctx.rotate(0.24); // Lean forward toward electrometer & vial
+  sctx.fillStyle = '#273244';
+  sctx.strokeStyle = '#475569';
+  sctx.lineWidth = 1.2;
+  sctx.beginPath();
+  sctx.roundRect(-12, -42, 24, 44, 5);
+  sctx.fill();
+  sctx.stroke();
+
+  // White shirt collar
+  sctx.fillStyle = '#f8fafc';
+  sctx.beginPath();
+  sctx.moveTo(-1, -42);
+  sctx.lineTo(6, -42);
+  sctx.lineTo(3, -30);
+  sctx.closePath();
+  sctx.fill();
+  sctx.restore();
+
+  // Head & Beard leaning toward the electrometer window
+  sctx.fillStyle = '#f1c29b';
+  sctx.beginPath();
+  sctx.arc(headX, headY, 10.5, 0, Math.PI * 2);
+  sctx.fill();
+
+  // Hair & beard
+  sctx.fillStyle = '#4a3525';
+  sctx.beginPath();
+  sctx.arc(headX - 2, headY - 3, 10.5, Math.PI * 0.78, Math.PI * 2.0);
+  sctx.fill();
+  sctx.beginPath();
+  sctx.arc(headX + 3, headY + 5.5, 7, 0.05 * Math.PI, 0.9 * Math.PI);
+  sctx.fill();
+
+  // Eye looking down at the electrometer gauge
+  sctx.fillStyle = '#1e293b';
+  sctx.beginPath();
+  sctx.arc(headX + 6, headY + 1, 1.6, 0, Math.PI * 2);
+  sctx.fill();
+
+  // Fixed-length bent arm reaching the electrometer dial cleanly
+  const elbowX = shoulderX + 6;
+  const elbowY = shoulderY + 18;
+  const handX = detX - 6;
+  const handY = tableTopY - 12;
+
+  sctx.strokeStyle = '#334155';
+  sctx.lineWidth = 5.5;
+  sctx.lineCap = 'round';
+  sctx.lineJoin = 'round';
+  sctx.beginPath();
+  sctx.moveTo(shoulderX + 2, shoulderY + 6);
+  sctx.lineTo(elbowX, elbowY);
+  sctx.lineTo(handX, handY);
+  sctx.stroke();
+
+  sctx.fillStyle = '#f1c29b';
+  sctx.beginPath();
+  sctx.arc(handX, handY, 3.8, 0, Math.PI * 2);
+  sctx.fill();
+
+  // Lab Table spanning under Electrometer & Vial
+  sctx.fillStyle = '#3b2e25';
+  sctx.fillRect(tableLeft, tableTopY, tableRight - tableLeft, 6);
+  sctx.fillStyle = '#261d17';
+  sctx.fillRect(tableLeft + 4, tableTopY + 6, 5, floorY - tableTopY - 6);
+  sctx.fillRect(tableRight - 9, tableTopY + 6, 5, floorY - tableTopY - 6);
+
+  // Piezo-Electrometer Box on Table
+  sctx.fillStyle = '#1e293b';
+  sctx.strokeStyle = '#f59e0b';
+  sctx.lineWidth = 1.5;
+  sctx.fillRect(detX - 16, tableTopY - 32, 32, 32);
+  sctx.strokeRect(detX - 16, tableTopY - 32, 32, 32);
+
+  // Electrometer glass window & deflecting gold foil needle
+  sctx.fillStyle = '#090d14';
+  sctx.fillRect(detX - 11, tableTopY - 27, 22, 16);
+  const foilAngle = -Math.PI / 2 + st.activityRatio * 1.1;
+  sctx.strokeStyle = '#fbbf24';
+  sctx.lineWidth = 2;
+  sctx.beginPath();
+  sctx.moveTo(detX, tableTopY - 13);
+  sctx.lineTo(detX + Math.cos(foilAngle) * 11, tableTopY - 13 + Math.sin(foilAngle) * 11);
+  sctx.stroke();
+
+  // Sensor wire connecting Electrometer to Vial dish
+  sctx.strokeStyle = '#94a3b8';
+  sctx.lineWidth = 1.3;
+  sctx.beginPath();
+  sctx.moveTo(detX + 16, tableTopY - 10);
+  sctx.quadraticCurveTo((detX + vx) / 2, tableTopY - 22, vx - 10, tableTopY - 8);
+  sctx.stroke();
+
+  // Collected Pure Sample Vial on Right Side of Table
+  sctx.strokeStyle = '#cbd5e1';
+  sctx.lineWidth = 1.8;
+  sctx.strokeRect(vx - 10, tableTopY - 40, 20, 40);
+  sctx.fillStyle = '#92400e';
+  sctx.fillRect(vx - 7, tableTopY - 46, 14, 6);
+
+  if (state.stage === 0) {
+    sctx.fillStyle = '#64748b';
+    sctx.font = '8.5px sans-serif';
+    sctx.textAlign = 'center';
+    sctx.fillText('Empty', vx, tableTopY - 16);
+  } else {
+    const glowIntensity = st.activityRatio;
+    const glowColor = isPo ? '56, 189, 248' : '74, 222, 128';
+    const rGlow = sctx.createRadialGradient(vx, tableTopY - 6, 1, vx, tableTopY - 6, 32 * glowIntensity + 6);
+    rGlow.addColorStop(0, `rgba(${glowColor}, ${0.9 * glowIntensity})`);
+    rGlow.addColorStop(1, `rgba(${glowColor}, 0)`);
+    sctx.fillStyle = rGlow;
+    sctx.beginPath();
+    sctx.arc(vx, tableTopY - 6, 32 * glowIntensity + 6, 0, Math.PI * 2);
+    sctx.fill();
+
+    const speckRadius = 1.2 + state.stage * 0.35;
+    sctx.fillStyle = '#ffffff';
+    sctx.beginPath();
+    sctx.arc(vx, tableTopY - 4, speckRadius, 0, Math.PI * 2);
+    sctx.fill();
+  }
+
+  // Labels under Pierre & Vial
+  sctx.textAlign = 'center';
+  sctx.fillStyle = '#e2e8f0';
+  sctx.font = 'bold 11px sans-serif';
+  sctx.fillText('Pierre Curie', px - 4, floorY + 17);
+  sctx.fillStyle = '#94a3b8';
+  sctx.font = '9.5px sans-serif';
+  sctx.fillText('(Inspecting)', px - 4, floorY + 31);
+
+  sctx.fillStyle = isPo ? '#7dd3fc' : '#86efac';
+  sctx.font = 'bold 10.5px sans-serif';
+  sctx.fillText('VIAL', vx, floorY + 17);
+  sctx.fillStyle = '#cbd5e1';
+  sctx.font = '9.5px sans-serif';
+  const vialMass = state.stage === 0 ? '0 g' : (isPo ? ['0 g', '0.00001g', '0.0001g', '0.0003g', '0.0004g'][state.stage] : ['0 g', '0.002g', '0.015g', '0.065g', '0.100g'][state.stage]);
+  sctx.fillText(vialMass, vx, floorY + 31);
+}
+
+// Draw Main Shed Scene
+function drawShed() {
+  const w = shedCanvas.width / devicePixelRatio;
+  const h = shedCanvas.height / devicePixelRatio;
+  sctx.clearRect(0, 0, w, h);
+
+  const floorY = h - 44;
+
+  // Floor strip
+  sctx.fillStyle = '#151922';
+  sctx.fillRect(0, floorY, w, h - floorY);
+  sctx.strokeStyle = '#303b4e';
+  sctx.lineWidth = 2;
+  sctx.beginPath();
+  sctx.moveTo(0, floorY);
+  sctx.lineTo(w, floorY);
+  sctx.stroke();
+
+  // Zone 1 (Left): Huge 10-Ton Ore Mountain
+  drawTenTonMountain(w, h, floorY);
+
+  // Zone 2 (Center): Cauldron + Cutaway + Marie
+  const cx = w * 0.48;
+  const cy = floorY - 72;
+
+  const fireGlow = sctx.createRadialGradient(cx, floorY - 12, 6, cx, floorY - 12, 56);
+  fireGlow.addColorStop(0, 'rgba(249, 115, 22, 0.85)');
+  fireGlow.addColorStop(0.65, 'rgba(220, 38, 38, 0.28)');
+  fireGlow.addColorStop(1, 'rgba(0,0,0,0)');
+  sctx.fillStyle = fireGlow;
+  sctx.beginPath();
+  sctx.arc(cx, floorY - 12, 56, 0, Math.PI * 2);
+  sctx.fill();
+
+  sctx.fillStyle = '#451a1a';
+  sctx.strokeStyle = '#7f1d1d';
+  sctx.fillRect(cx - 48, floorY - 22, 96, 22);
+  sctx.strokeRect(cx - 48, floorY - 22, 96, 22);
+
+  state.steam.forEach(p => {
+    p.y -= 0.004;
+    if (p.y < 0) p.y = 1;
+    const alpha = Math.sin(p.y * Math.PI) * 0.14;
+    sctx.fillStyle = `rgba(226, 232, 240, ${alpha})`;
+    sctx.beginPath();
+    sctx.arc(cx + p.x * w + Math.sin(p.y * 7) * 8, cy - 24 - (1 - p.y) * 65, p.r, 0, Math.PI * 2);
+    sctx.fill();
+  });
+
+  const swing = (state.rodNorm - 0.5) * 64;
+  const rodTopX = cx + 18 + swing * 0.75;
+  const rodTopY = cy - 52;
+  const rodBotX = cx - swing * 0.65;
+  const rodBotY = cy + 32;
+
+  sctx.fillStyle = '#1e242d';
+  sctx.strokeStyle = '#64748b';
+  sctx.lineWidth = 3;
+  sctx.beginPath();
+  sctx.arc(cx, cy - 8, 56, 0, Math.PI, false);
+  sctx.closePath();
+  sctx.fill();
+  sctx.stroke();
+
+  const st = STAGES[state.stage];
+  const isPo = state.branch === 'polonium' && state.stage >= 2;
+  sctx.save();
+  sctx.beginPath();
+  sctx.arc(cx, cy - 8, 50, 0.08 * Math.PI, 0.92 * Math.PI, false);
+  sctx.closePath();
+  sctx.clip();
+
+  sctx.fillStyle = isPo ? '#164e63' : st.liquidColor;
+  sctx.fillRect(cx - 55, cy - 10, 110, 70);
+
+  const mudHeight = Math.max(5, 20 * (1 - state.stirProgress * 0.75));
+  sctx.fillStyle = '#292018';
+  sctx.fillRect(cx - 55, cy + 44 - mudHeight, 110, mudHeight);
+
+  state.atoms.forEach(a => {
+    a.x += a.vx;
+    a.y += a.vy;
+    a.vx *= 0.96;
+    a.vy *= 0.96;
+
+    if (a.isActive && state.stirProgress > 0.05) {
+      a.vy -= 0.0012;
+    } else if (!a.isActive) {
+      a.vy += 0.0008;
+    }
+
+    if (a.x < 0.15) { a.x = 0.15; a.vx *= -1; }
+    if (a.x > 0.85) { a.x = 0.85; a.vx *= -1; }
+    if (a.y < 0.15) { a.y = 0.15; a.vy *= -1; }
+    if (a.y > 0.88) { a.y = 0.88; a.vy *= -1; }
+
+    const px = cx - 40 + a.x * 80;
+    const py = cy - 2 + a.y * 40;
+    sctx.fillStyle = a.isActive ? (isPo ? '#38bdf8' : '#4ade80') : '#78716c';
+    sctx.beginPath();
+    sctx.arc(px, py, a.isActive ? 3.0 : 2.3, 0, Math.PI * 2);
+    sctx.fill();
+  });
+
+  sctx.strokeStyle = '#cbd5e1';
+  sctx.lineWidth = 4.5;
+  sctx.beginPath();
+  sctx.moveTo(rodTopX, rodTopY);
+  sctx.lineTo(rodBotX, rodBotY);
+  sctx.stroke();
+  sctx.restore();
+
+  sctx.fillStyle = '#334155';
+  sctx.beginPath();
+  sctx.ellipse(cx, cy - 8, 56, 9, 0, 0, Math.PI * 2);
+  sctx.fill();
+  sctx.strokeStyle = '#64748b';
+  sctx.lineWidth = 2;
+  sctx.stroke();
+
+  sctx.strokeStyle = (state.draggingRod || state.autoStir) ? '#38d9a9' : '#94a3b8';
+  sctx.lineWidth = 4.5;
+  sctx.lineCap = 'round';
+  sctx.beginPath();
+  sctx.moveTo(rodTopX, rodTopY);
+  sctx.lineTo(cx - swing * 0.25, cy - 8);
+  sctx.stroke();
+
+  if (state.stage < 4) {
+    const pulse = 9 + Math.sin(performance.now() / 220) * 3;
+    sctx.strokeStyle = 'rgba(56, 217, 169, 0.6)';
+    sctx.lineWidth = 2;
+    sctx.beginPath();
+    sctx.arc(rodTopX, rodTopY, pulse, 0, Math.PI * 2);
+    sctx.stroke();
+  }
+
+  // Marie positioned cleanly to the right of the cauldron
+  drawMarie(cx + 76, floorY, rodTopX, rodTopY);
+
+  // Compact progress bar directly under furnace
+  const pct = state.stage === 4 ? 100 : Math.round(state.stirProgress * 100);
+  sctx.fillStyle = '#0f172a';
+  sctx.fillRect(cx - 46, floorY + 7, 92, 9);
+  sctx.fillStyle = isPo ? '#38bdf8' : '#38d9a9';
+  sctx.fillRect(cx - 46, floorY + 7, 92 * (pct / 100), 9);
+  sctx.strokeStyle = '#334155';
+  sctx.strokeRect(cx - 46, floorY + 7, 92, 9);
+
+  sctx.fillStyle = '#e2e8f0';
+  sctx.font = 'bold 10px sans-serif';
+  sctx.textAlign = 'center';
+  sctx.fillText(
+    state.stage === 4 ? 'Done!' : `Dissolved: ${pct}%`,
+    cx,
+    floorY + 31
+  );
+
+  // Zone 3 (Right): Pierre & Bench anchored cleanly with minimum spacing from Marie
+  const vx = Math.max(cx + 215, w - 42);
+  drawPierreAndDetector(vx, floorY, isPo, st);
+}
+
+// Draw Pierre's Radiation Meter
+function drawMeter() {
+  const w = meterCanvas.width / devicePixelRatio;
+  const h = meterCanvas.height / devicePixelRatio;
+  mctx.clearRect(0, 0, w, h);
+
+  const st = STAGES[state.stage];
+  const isPo = state.branch === 'polonium' && state.stage >= 2;
+  const targetRatio = isPo && state.stage >= 3 ? 0.55 : st.activityRatio;
+
+  const cx = w / 2;
+  const cy = h * 0.84;
+  const radius = Math.min(w * 0.38, h * 0.68);
+
+  mctx.strokeStyle = '#334155';
+  mctx.lineWidth = 9;
+  mctx.beginPath();
+  mctx.arc(cx, cy, radius, Math.PI, 0, false);
+  mctx.stroke();
+
+  mctx.strokeStyle = isPo ? '#38bdf8' : '#4ade80';
+  mctx.lineWidth = 9;
+  mctx.beginPath();
+  mctx.arc(cx, cy, radius, Math.PI, Math.PI + Math.PI * targetRatio, false);
+  mctx.stroke();
+
+  const ticks = ['1× U', '100×', '10k×', '100k×', '2M×'];
+  mctx.fillStyle = '#94a3b8';
+  mctx.font = '9.5px sans-serif';
+  mctx.textAlign = 'center';
+  ticks.forEach((label, i) => {
+    const ang = Math.PI + (Math.PI * i) / (ticks.length - 1);
+    const tx = cx + Math.cos(ang) * (radius + 15);
+    const ty = cy + Math.sin(ang) * (radius + 15);
+    mctx.fillText(label, tx, ty);
+  });
+
+  const jitter = (Math.random() - 0.5) * 0.015;
+  const needleAng = Math.PI + Math.PI * Math.min(1, Math.max(0, targetRatio + jitter));
+  mctx.strokeStyle = '#f8fafc';
+  mctx.lineWidth = 2.5;
+  mctx.beginPath();
+  mctx.moveTo(cx, cy);
+  mctx.lineTo(cx + Math.cos(needleAng) * (radius - 6), cy + Math.sin(needleAng) * (radius - 6));
+  mctx.stroke();
+
+  mctx.fillStyle = '#f59e0b';
+  mctx.beginPath();
+  mctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  mctx.fill();
+}
+
+function loop() {
+  if (state.autoStir && state.stage < 4) {
+    state.autoPhase += 0.14;
+    const prevNorm = state.rodNorm;
+    state.rodNorm = 0.5 + Math.sin(state.autoPhase) * 0.42;
+    const delta = Math.abs(state.rodNorm - prevNorm);
+    addStirWork(delta * 0.013);
+  }
+  drawShed();
+  drawMeter();
+  requestAnimationFrame(loop);
+}
+
+updateUI();
+loop();
+</script>
+</body>
+</html>
