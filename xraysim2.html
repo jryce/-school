@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Röntgen's 1895 X-Ray Discovery — Zero-Scroll Lab</title>
+<style>
+  :root {
+    --bg: #0f131a;
+    --panel: #171d27;
+    --panel-2: #1e2633;
+    --border: #2b3546;
+    --text: #e8edf5;
+    --muted: #9aa7bd;
+    --accent: #38d9a9;
+    --xray: #4ade80;
+    --amber: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100%;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  /* Top Bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    flex-shrink: 0;
+  }
+  .title-wrap { display: flex; align-items: baseline; gap: 8px; }
+  .title-wrap h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.2px; }
+  .title-wrap span { font-size: 11px; color: var(--muted); }
+
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #263142; border-color: #415069; }
+  .btn.active { background: #14382d; border-color: var(--accent); color: var(--accent); }
+  .btn.amber { background: #3b2a10; border-color: var(--amber); color: #fcd34d; }
+  .btn.danger { background: #3b1518; border-color: var(--danger); color: #fca5a5; }
+
+  /* Main 2-Column Stage */
+  .stage {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 285px;
+    gap: 8px;
+  }
+
+  /* Left: Bench + Bottom Control Dock */
+  .left-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .bench-wrap {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: radial-gradient(circle at 25% 50%, #17202e 0%, #0b0e14 85%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #benchCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+  #benchCanvas:active { cursor: grabbing; }
+
+  .bench-hint {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(15, 19, 26, 0.78);
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    pointer-events: none;
+  }
+
+  /* Bottom Dock */
+  .dock {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .dock-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dock-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  input[type="range"] {
+    width: 82px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Right Sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 8px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .detector-card {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .detector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--panel-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .detector-screen-wrap {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: #070a0d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  #detectorCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .plate-controls {
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .plate-controls.visible { display: flex; }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #0b0f14;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--amber);
+    transition: width 0.08s linear;
+  }
+
+  .note-card {
+    flex-shrink: 0;
+    background: #141a24;
+  }
+  .note-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .note-text {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #cbd5e1;
+  }
+
+  @media (max-width: 820px) {
+    .stage { grid-template-columns: 1fr 230px; }
+    .title-wrap span { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="title-wrap">
+      <h1>Röntgen's 1895 X-Ray Lab</h1>
+      <span>Würzburg, Nov 8, 1895 • Crookes Tube Simulation</span>
+    </div>
+    <div class="presets">
+      <button class="btn" onclick="applyPreset('glow')">1. Accidental Glow</button>
+      <button class="btn" onclick="applyPreset('materials')">2. Material Penetration</button>
+      <button class="btn" onclick="applyPreset('hand')">3. Bertha's Hand</button>
+    </div>
+  </header>
+
+  <!-- Main Stage -->
+  <main class="stage">
+    <!-- Left: Interactive Bench + Bottom Dock -->
+    <section class="left-col">
+      <div class="bench-wrap">
+        <canvas id="benchCanvas"></canvas>
+        <div class="bench-hint">Drag the <b>Aim Handle</b>, <b>Test Object</b>, or <b>Detector</b> directly on the bench</div>
+      </div>
+
+      <div class="dock">
+        <div class="dock-group">
+          <button id="powerBtn" class="btn active" onclick="togglePower()">Coil: ON</button>
+          <button id="coverBtn" class="btn" onclick="toggleCover()">Cardboard: OFF</button>
+        </div>
+
+        <div class="dock-group">
+          <span class="dock-label">Tilt</span>
+          <input id="tiltSlider" type="range" min="-25" max="25" value="0" oninput="setTilt(this.value)" />
+          <span id="tiltVal" style="width:28px;font-size:11px;color:var(--muted);">0°</span>
+        </div>
+
+        <div class="dock-group" id="objectBtns">
+          <span class="dock-label">Object</span>
+          <button class="btn active" data-obj="none" onclick="setObject('none')">None</button>
+          <button class="btn" data-obj="book" onclick="setObject('book')">Book</button>
+          <button class="btn" data-obj="box" onclick="setObject('box')">Box+Weights</button>
+          <button class="btn" data-obj="aluminum" onclick="setObject('aluminum')">Al Plate</button>
+          <button class="btn" data-obj="lead" onclick="setObject('lead')">Lead</button>
+          <button class="btn" data-obj="hand" onclick="setObject('hand')">Bertha's Hand</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Detector View + History Note -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="mode-tabs">
+          <button id="modeScreenBtn" class="btn active" onclick="setMode('screen')">Fluorescent Screen</button>
+          <button id="modePlateBtn" class="btn" onclick="setMode('plate')">Photo Plate</button>
+        </div>
+      </div>
+
+      <div class="card detector-card">
+        <div class="detector-header">
+          <span id="detectorTitle">Barium Platinocyanide</span>
+          <span id="intensityBadge" class="badge">100%</span>
+        </div>
+        <div class="detector-screen-wrap">
+          <canvas id="detectorCanvas"></canvas>
+        </div>
+        <div id="plateControls" class="plate-controls">
+          <button id="exposeBtn" class="btn amber" onclick="startExposure()">Expose Plate (3s)</button>
+          <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+          <button class="btn" onclick="clearPlate()">Clear</button>
+        </div>
+      </div>
+
+      <div class="card note-card">
+        <div class="note-title">1895 Lab Note</div>
+        <div id="noteText" class="note-text">
+          Switch on the Ruhmkorff coil and cover the Crookes tube with black cardboard. Even when visible glass glow is blocked, the screen across the bench still fluoresces!
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+const benchCanvas = document.getElementById('benchCanvas');
+const bctx = benchCanvas.getContext('2d');
+const detCanvas = document.getElementById('detectorCanvas');
+const dctx = detCanvas.getContext('2d');
+
+// Simulation State (normalized 0..1 coordinates on bench)
+const state = {
+  power: true,
+  cardboard: false,
+  tiltDeg: 0,
+  object: 'none',
+  mode: 'screen', // 'screen' | 'plate'
+  tubeX: 0.16,
+  tubeY: 0.52,
+  objX: 0.50,
+  objY: 0.52,
+  detX: 0.84,
+  detY: 0.52,
+  dragging: null, // 'aim' | 'obj' | 'det'
+  exposing: false,
+  exposureProgress: 0,
+  developedPlate: null // snapshot of parameters when exposed
+};
+
+const OBJECTS = {
+  none: { label: 'None', opacity: 0 },
+  book: { label: '1,000-Page Book', opacity: 0.18 },
+  box: { label: 'Wooden Box + Brass Weights', opacity: 0.25 },
+  aluminum: { label: 'Aluminum Plate (15mm)', opacity: 0.35 },
+  lead: { label: 'Lead Sheet (Pb)', opacity: 0.96 },
+  hand: { label: "Anna Bertha's Hand", opacity: 0.30 }
+};
+
+function resize() {
+  const br = benchCanvas.parentElement.getBoundingClientRect();
+  benchCanvas.width = br.width * devicePixelRatio;
+  benchCanvas.height = br.height * devicePixelRatio;
+  bctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+  const dr = detCanvas.parentElement.getBoundingClientRect();
+  detCanvas.width = dr.width * devicePixelRatio;
+  detCanvas.height = dr.height * devicePixelRatio;
+  dctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Controls
+function togglePower() {
+  state.power = !state.power;
+  const btn = document.getElementById('powerBtn');
+  btn.textContent = state.power ? 'Coil: ON' : 'Coil: OFF';
+  btn.classList.toggle('active', state.power);
+  updateNote();
+}
+
+function toggleCover() {
+  state.cardboard = !state.cardboard;
+  const btn = document.getElementById('coverBtn');
+  btn.textContent = state.cardboard ? 'Cardboard: ON' : 'Cardboard: OFF';
+  btn.classList.toggle('amber', state.cardboard);
+  updateNote();
+}
+
+function setTilt(val) {
+  state.tiltDeg = Number(val);
+  document.getElementById('tiltSlider').value = state.tiltDeg;
+  document.getElementById('tiltVal').textContent = state.tiltDeg + '°';
+}
+
+function setObject(obj) {
+  state.object = obj;
+  document.querySelectorAll('#objectBtns .btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.obj === obj);
+  });
+  updateNote();
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  document.getElementById('modeScreenBtn').classList.toggle('active', mode === 'screen');
+  document.getElementById('modePlateBtn').classList.toggle('active', mode === 'plate');
+  document.getElementById('plateControls').classList.toggle('visible', mode === 'plate');
+  document.getElementById('detectorTitle').textContent =
+    mode === 'screen' ? 'Barium Platinocyanide' : 'Photographic Plate (1895)';
+  updateNote();
+}
+
+function clearPlate() {
+  state.exposing = false;
+  state.exposureProgress = 0;
+  state.developedPlate = null;
+  document.getElementById('progressFill').style.width = '0%';
+}
+
+function startExposure() {
+  if (!state.power || state.exposing) return;
+  state.exposing = true;
+  state.exposureProgress = 0;
+  state.developedPlate = null;
+  const start = performance.now();
+  const duration = 3000;
+
+  function step(now) {
+    if (!state.exposing) return;
+    if (!state.power) {
+      state.exposing = false;
+      return;
+    }
+    const p = Math.min(1, (now - start) / duration);
+    state.exposureProgress = p;
+    document.getElementById('progressFill').style.width = (p * 100) + '%';
+    if (p < 1) {
+      requestAnimationFrame(step);
+    } else {
+      state.exposing = false;
+      state.developedPlate = {
+        object: state.object,
+        intensity: getBeamHit().intensity,
+        offsetY: getBeamHit().offsetY,
+        mag: getMagnification()
+      };
+      updateNote();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function applyPreset(name) {
+  clearPlate();
+  if (name === 'glow') {
+    state.power = true;
+    state.cardboard = true;
+    setTilt(0);
+    setObject('none');
+    setMode('screen');
+    state.detX = 0.84;
+  } else if (name === 'materials') {
+    state.power = true;
+    state.cardboard = true;
+    setTilt(0);
+    setObject('box');
+    setMode('screen');
+    state.objX = 0.50;
+    state.detX = 0.84;
+  } else if (name === 'hand') {
+    state.power = true;
+    state.cardboard = true;
+    setTilt(0);
+    setObject('hand');
+    setMode('plate');
+    state.objX = 0.72;
+    state.detX = 0.85;
+  }
+  document.getElementById('powerBtn').textContent = state.power ? 'Coil: ON' : 'Coil: OFF';
+  document.getElementById('powerBtn').classList.toggle('active', state.power);
+  document.getElementById('coverBtn').textContent = state.cardboard ? 'Cardboard: ON' : 'Cardboard: OFF';
+  document.getElementById('coverBtn').classList.toggle('amber', state.cardboard);
+  updateNote();
+}
+
+function updateNote() {
+  const el = document.getElementById('noteText');
+  if (!state.power) {
+    el.textContent = 'The Ruhmkorff induction coil is OFF. High-voltage discharge inside the evacuated Crookes tube is required to generate X-rays.';
+    return;
+  }
+  if (state.mode === 'plate' && state.developedPlate) {
+    if (state.developedPlate.object === 'hand') {
+      el.textContent = 'Dec 22, 1895: Anna Bertha saw her own skeleton and wedding ring and exclaimed, "I have seen my death!" Dense bone and gold absorb X-rays far more than soft tissue.';
+    } else {
+      el.textContent = 'Plate developed! Areas hit by X-rays darken the silver-halide emulsion; dense materials cast pale shadows.';
+    }
+    return;
+  }
+  if (state.cardboard && state.object === 'none') {
+    el.textContent = 'Black cardboard blocks all visible cathode-ray glow, yet the barium platinocyanide screen still glows—proving an invisible, penetrating ray ("X-ray") is escaping.';
+  } else if (state.object === 'book') {
+    el.textContent = 'Röntgen held a 1,000-page book in the beam and saw the screen barely dim—paper is nearly transparent to X-rays.';
+  } else if (state.object === 'box') {
+    el.textContent = 'Inside a closed wooden box, the brass weights cast dark shadows while the wood nearly vanishes.';
+  } else if (state.object === 'aluminum') {
+    el.textContent = 'A 15mm aluminum plate weakens the beam noticeably, but still lets X-rays pass through.';
+  } else if (state.object === 'lead') {
+    el.textContent = 'Lead (Pb) has a high atomic number (82) and density—it stops almost all X-rays, casting a solid black shadow.';
+  } else if (state.object === 'hand') {
+    el.textContent = 'Move Bertha\'s hand closer to the detector to sharpen the shadow, or switch to Photo Plate and click Expose Plate (3s).';
+  } else {
+    el.textContent = 'Try covering the tube with black cardboard, sweeping the beam tilt, or dragging objects closer to the tube to see geometric magnification.';
+  }
+}
+
+// Physics helpers
+function getBeamHit() {
+  if (!state.power) return { intensity: 0, offsetY: 0 };
+  const dx = Math.max(0.15, state.detX - state.tubeX);
+  const rad = (state.tiltDeg * Math.PI) / 180;
+  const beamYAtDet = state.tubeY + Math.tan(rad) * dx;
+  const offsetY = beamYAtDet - state.detY;
+  // Inverse-square falloff relative to baseline distance 0.68
+  const distFactor = Math.min(1.35, Math.pow(0.68 / dx, 1.4));
+  // Angular falloff if aimed off detector
+  const angularFactor = Math.max(0, 1 - Math.abs(offsetY) / 0.34);
+  return {
+    intensity: Math.max(0, Math.min(1, distFactor * angularFactor)),
+    offsetY
+  };
+}
+
+function getMagnification() {
+  const dTubeObj = Math.max(0.08, state.objX - state.tubeX);
+  const dTubeDet = Math.max(0.15, state.detX - state.tubeX);
+  if (state.objX >= state.detX - 0.03) return 1.0;
+  return Math.min(2.1, Math.max(1.0, dTubeDet / dTubeObj));
+}
+
+// Pointer Dragging on Bench
+function getBenchPos(e) {
+  const rect = benchCanvas.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  return { x: cx / rect.width, y: cy / rect.height, px: cx, py: cy, w: rect.width, h: rect.height };
+}
+
+benchCanvas.addEventListener('pointerdown', (e) => {
+  const p = getBenchPos(e);
+  const rad = (state.tiltDeg * Math.PI) / 180;
+  const aimX = state.tubeX + Math.cos(rad) * 0.14;
+  const aimY = state.tubeY + Math.sin(rad) * 0.14;
+
+  if (Math.hypot(p.x - aimX, p.y - aimY) < 0.06) {
+    state.dragging = 'aim';
+  } else if (state.object !== 'none' && Math.hypot(p.x - state.objX, p.y - state.objY) < 0.08) {
+    state.dragging = 'obj';
+  } else if (Math.abs(p.x - state.detX) < 0.06 && Math.abs(p.y - state.detY) < 0.25) {
+    state.dragging = 'det';
+  }
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (!state.dragging) return;
+  const p = getBenchPos(e);
+  if (state.dragging === 'aim') {
+    const angle = Math.atan2(p.y - state.tubeY, Math.max(0.05, p.x - state.tubeX));
+    const deg = Math.round(Math.max(-25, Math.min(25, (angle * 180) / Math.PI)));
+    setTilt(deg);
+  } else if (state.dragging === 'obj') {
+    state.objX = Math.max(state.tubeX + 0.14, Math.min(state.detX - 0.07, p.x));
+  } else if (state.dragging === 'det') {
+    state.detX = Math.max(Math.max(state.tubeX + 0.28, state.objX + 0.07), Math.min(0.92, p.x));
+  }
+});
+
+window.addEventListener('pointerup', () => { state.dragging = null; });
+
+// Drawing: Bench
+function drawBench() {
+  const w = benchCanvas.width / devicePixelRatio;
+  const h = benchCanvas.height / devicePixelRatio;
+  bctx.clearRect(0, 0, w, h);
+
+  // Wooden lab table surface
+  const tableY = h * 0.78;
+  bctx.fillStyle = '#1b1612';
+  bctx.fillRect(0, tableY, w, h - tableY);
+  bctx.strokeStyle = '#3b2e23';
+  bctx.lineWidth = 2;
+  bctx.beginPath();
+  bctx.moveTo(0, tableY);
+  bctx.lineTo(w, tableY);
+  bctx.stroke();
+
+  const tx = state.tubeX * w;
+  const ty = state.tubeY * h;
+  const ox = state.objX * w;
+  const oy = state.objY * h;
+  const dx = state.detX * w;
+  const dy = state.detY * h;
+  const rad = (state.tiltDeg * Math.PI) / 180;
+
+  // X-ray beam cone (subtle cyan/green dashed rays)
+  if (state.power) {
+    bctx.save();
+    bctx.translate(tx, ty);
+    bctx.rotate(rad);
+    const beamLen = w * 0.9;
+    const grad = bctx.createLinearGradient(0, 0, beamLen, 0);
+    grad.addColorStop(0, 'rgba(74, 222, 128, 0.22)');
+    grad.addColorStop(0.6, 'rgba(74, 222, 128, 0.08)');
+    grad.addColorStop(1, 'rgba(74, 222, 128, 0.01)');
+    bctx.fillStyle = grad;
+    bctx.beginPath();
+    bctx.moveTo(15, -8);
+    bctx.lineTo(beamLen, -140);
+    bctx.lineTo(beamLen, 140);
+    bctx.lineTo(15, 8);
+    bctx.closePath();
+    bctx.fill();
+
+    // Visible green glass fluorescence (blocked by cardboard!)
+    if (!state.cardboard) {
+      const glow = bctx.createRadialGradient(0, 0, 5, 0, 0, 85);
+      glow.addColorStop(0, 'rgba(134, 239, 172, 0.45)');
+      glow.addColorStop(1, 'rgba(134, 239, 172, 0)');
+      bctx.fillStyle = glow;
+      bctx.beginPath();
+      bctx.arc(0, 0, 85, 0, Math.PI * 2);
+      bctx.fill();
+    }
+    bctx.restore();
+  }
+
+  // Stand for Crookes Tube
+  bctx.strokeStyle = '#64748b';
+  bctx.lineWidth = 4;
+  bctx.beginPath();
+  bctx.moveTo(tx, ty + 22);
+  bctx.lineTo(tx, tableY);
+  bctx.stroke();
+  bctx.fillStyle = '#475569';
+  bctx.fillRect(tx - 24, tableY - 6, 48, 6);
+
+  // Crookes Tube
+  bctx.save();
+  bctx.translate(tx, ty);
+  bctx.rotate(rad);
+  bctx.fillStyle = state.power && !state.cardboard ? 'rgba(74, 222, 128, 0.35)' : 'rgba(148, 163, 184, 0.16)';
+  bctx.strokeStyle = '#94a3b8';
+  bctx.lineWidth = 2;
+  bctx.beginPath();
+  bctx.ellipse(0, 0, 42, 20, 0, 0, Math.PI * 2);
+  bctx.fill();
+  bctx.stroke();
+
+  // Cathode & Anode inside
+  bctx.strokeStyle = '#cbd5e1';
+  bctx.beginPath();
+  bctx.moveTo(-36, 0); bctx.lineTo(-18, 0);
+  bctx.moveTo(-18, -8); bctx.lineTo(-18, 8);
+  bctx.stroke();
+
+  // Cardboard Cover
+  if (state.cardboard) {
+    bctx.fillStyle = '#111318';
+    bctx.strokeStyle = '#f59e0b';
+    bctx.lineWidth = 1.5;
+    bctx.fillRect(-46, -24, 92, 48);
+    bctx.strokeRect(-46, -24, 92, 48);
+    bctx.fillStyle = '#fcd34d';
+    bctx.font = 'bold 10px sans-serif';
+    bctx.textAlign = 'center';
+    bctx.fillText('BLACK CARDBOARD', 0, 4);
+  }
+  bctx.restore();
+
+  // Aim Handle
+  const aimX = tx + Math.cos(rad) * (w * 0.14);
+  const aimY = ty + Math.sin(rad) * (w * 0.14);
+  bctx.strokeStyle = 'rgba(56, 217, 169, 0.5)';
+  bctx.setLineDash([4, 4]);
+  bctx.beginPath();
+  bctx.moveTo(tx + Math.cos(rad) * 44, ty + Math.sin(rad) * 44);
+  bctx.lineTo(aimX, aimY);
+  bctx.stroke();
+  bctx.setLineDash([]);
+  bctx.fillStyle = '#38d9a9';
+  bctx.beginPath();
+  bctx.arc(aimX, aimY, 7, 0, Math.PI * 2);
+  bctx.fill();
+
+  // Test Object on Bench
+  if (state.object !== 'none') {
+    bctx.strokeStyle = '#475569';
+    bctx.lineWidth = 3;
+    bctx.beginPath();
+    bctx.moveTo(ox, oy + 32);
+    bctx.lineTo(ox, tableY);
+    bctx.stroke();
+
+    bctx.save();
+    bctx.translate(ox, oy);
+    if (state.object === 'book') {
+      bctx.fillStyle = '#7c2d12';
+      bctx.fillRect(-10, -34, 20, 68);
+      bctx.fillStyle = '#fef3c7';
+      bctx.fillRect(-7, -30, 14, 60);
+    } else if (state.object === 'box') {
+      bctx.fillStyle = '#92400e';
+      bctx.fillRect(-14, -30, 28, 60);
+      bctx.fillStyle = '#fbbf24';
+      bctx.fillRect(-6, -16, 12, 14);
+      bctx.fillRect(-6, 4, 12, 18);
+    } else if (state.object === 'aluminum') {
+      bctx.fillStyle = '#94a3b8';
+      bctx.fillRect(-5, -36, 10, 72);
+    } else if (state.object === 'lead') {
+      bctx.fillStyle = '#334155';
+      bctx.strokeStyle = '#94a3b8';
+      bctx.fillRect(-6, -36, 12, 72);
+      bctx.strokeRect(-6, -36, 12, 72);
+    } else if (state.object === 'hand') {
+      bctx.fillStyle = '#e5b899';
+      bctx.beginPath();
+      bctx.roundRect(-8, -32, 16, 64, 6);
+      bctx.fill();
+      bctx.fillStyle = '#facc15';
+      bctx.fillRect(-9, -2, 18, 5);
+    }
+    bctx.restore();
+
+    bctx.fillStyle = '#cbd5e1';
+    bctx.font = '11px sans-serif';
+    bctx.textAlign = 'center';
+    bctx.fillText(OBJECTS[state.object].label, ox, tableY + 16);
+  }
+
+  // Detector Stand & Frame
+  const hit = getBeamHit();
+  bctx.strokeStyle = '#64748b';
+  bctx.lineWidth = 4;
+  bctx.beginPath();
+  bctx.moveTo(dx, dy + 62);
+  bctx.lineTo(dx, tableY);
+  bctx.stroke();
+  bctx.fillStyle = '#475569';
+  bctx.fillRect(dx - 22, tableY - 6, 44, 6);
+
+  bctx.fillStyle = state.mode === 'screen'
+    ? `rgba(74, 222, 128, ${0.12 + hit.intensity * 0.75})`
+    : '#292524';
+  bctx.strokeStyle = state.mode === 'screen' ? '#4ade80' : '#d97706';
+  bctx.lineWidth = 3;
+  bctx.fillRect(dx - 7, dy - 62, 14, 124);
+  bctx.strokeRect(dx - 7, dy - 62, 14, 124);
+
+  bctx.fillStyle = '#cbd5e1';
+  bctx.font = '11px sans-serif';
+  bctx.textAlign = 'center';
+  bctx.fillText(state.mode === 'screen' ? 'Fluorescent Screen' : 'Photo Plate', dx, tableY + 16);
+  bctx.fillText('Crookes Tube', tx, tableY + 16);
+}
+
+// Drawing: Detector View (Fluorescent Screen or Developed Plate)
+function drawShadowObject(ctx, cx, cy, obj, mag, isPlate) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(mag, mag);
+
+  const shadowColor = (alpha) => isPlate
+    ? `rgba(245, 232, 200, ${alpha})` // pale bone/metal on dark sepia negative
+    : `rgba(5, 14, 8, ${alpha})`;     // dark shadow on glowing green screen
+
+  if (obj === 'book') {
+    ctx.fillStyle = shadowColor(0.22);
+    ctx.fillRect(-38, -50, 76, 100);
+  } else if (obj === 'box') {
+    ctx.fillStyle = shadowColor(0.22);
+    ctx.fillRect(-48, -42, 96, 84);
+    // Dense hidden brass weights
+    ctx.fillStyle = shadowColor(0.92);
+    ctx.beginPath();
+    ctx.arc(-20, -10, 14, 0, Math.PI * 2);
+    ctx.arc(18, 12, 18, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (obj === 'aluminum') {
+    ctx.fillStyle = shadowColor(0.45);
+    ctx.fillRect(-44, -44, 88, 88);
+  } else if (obj === 'lead') {
+    ctx.fillStyle = shadowColor(0.96);
+    ctx.fillRect(-44, -44, 88, 88);
+  } else if (obj === 'hand') {
+    // Soft tissue silhouette
+    ctx.fillStyle = shadowColor(0.28);
+    ctx.beginPath();
+    ctx.roundRect(-24, -6, 48, 52, 16);
+    ctx.fill();
+    const fingers = [
+      { x: -24, y: -42, w: 9, h: 42 },
+      { x: -11, y: -54, w: 10, h: 52 },
+      { x: 2,   y: -50, w: 10, h: 48 },
+      { x: 15,  y: -38, w: 9, h: 38 },
+      { x: -36, y: 4,   w: 16, h: 10 }
+    ];
+    fingers.forEach(f => {
+      ctx.beginPath();
+      ctx.roundRect(f.x, f.y, f.w, f.h, 5);
+      ctx.fill();
+    });
+
+    // Bones (much denser)
+    ctx.strokeStyle = shadowColor(0.86);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 4;
+    [[-19, -38, -12, 22], [-6, -49, -4, 24], [7, -45, 5, 24], [19, -34, 13, 22], [-32, 9, -14, 24]].forEach(b => {
+      ctx.beginPath();
+      ctx.moveTo(b[0], b[1]);
+      ctx.lineTo(b[2], b[3]);
+      ctx.stroke();
+    });
+
+    // Gold Wedding Ring on ring finger
+    ctx.fillStyle = shadowColor(0.98);
+    ctx.fillRect(1, -24, 12, 6);
+  }
+  ctx.restore();
+}
+
+function drawDetector() {
+  const w = detCanvas.width / devicePixelRatio;
+  const h = detCanvas.height / devicePixelRatio;
+  dctx.clearRect(0, 0, w, h);
+
+  const hit = getBeamHit();
+  document.getElementById('intensityBadge').textContent =
+    state.mode === 'screen'
+      ? Math.round(hit.intensity * 100) + '% Glow'
+      : (state.developedPlate ? 'Developed' : (state.exposing ? 'Exposing...' : 'Unexposed'));
+
+  if (state.mode === 'screen') {
+    dctx.fillStyle = '#060c08';
+    dctx.fillRect(0, 0, w, h);
+
+    if (hit.intensity > 0.01) {
+      const cy = h / 2 + hit.offsetY * h * 1.1;
+      const grad = dctx.createRadialGradient(w / 2, cy, 8, w / 2, cy, Math.max(w, h) * 0.72);
+      grad.addColorStop(0, `rgba(74, 222, 128, ${hit.intensity * 0.92})`);
+      grad.addColorStop(0.65, `rgba(34, 197, 94, ${hit.intensity * 0.45})`);
+      grad.addColorStop(1, 'rgba(6, 12, 8, 0)');
+      dctx.fillStyle = grad;
+      dctx.fillRect(0, 0, w, h);
+
+      if (state.object !== 'none') {
+        drawShadowObject(dctx, w / 2, cy, state.object, getMagnification(), false);
+      }
+    }
+  } else {
+    // Photographic Plate Mode
+    if (!state.developedPlate) {
+      dctx.fillStyle = '#181410';
+      dctx.fillRect(0, 0, w, h);
+      dctx.fillStyle = '#78716c';
+      dctx.font = '12px sans-serif';
+      dctx.textAlign = 'center';
+      dctx.fillText(
+        state.exposing ? 'Exposing silver-halide emulsion...' : 'Click "Expose Plate (3s)" below',
+        w / 2,
+        h / 2
+      );
+    } else {
+      const p = state.developedPlate;
+      dctx.fillStyle = '#1c1610';
+      dctx.fillRect(0, 0, w, h);
+      const cy = h / 2 + p.offsetY * h * 1.1;
+      const grad = dctx.createRadialGradient(w / 2, cy, 10, w / 2, cy, Math.max(w, h) * 0.75);
+      grad.addColorStop(0, `rgba(28, 20, 12, ${0.95})`);
+      grad.addColorStop(1, `rgba(60, 46, 30, 0.85)`);
+      dctx.fillStyle = grad;
+      dctx.fillRect(0, 0, w, h);
+
+      if (p.object !== 'none' && p.intensity > 0.05) {
+        drawShadowObject(dctx, w / 2, cy, p.object, p.mag, true);
+      }
+    }
+  }
+}
+
+function loop() {
+  drawBench();
+  drawDetector();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
