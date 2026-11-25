@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ion Story Lab — Half-Reaction Explorer</title>
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --bg-dot: #cbd5e1;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --border: #cbd5e1;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --accent: #4f46e5;
+    --accent-soft: #eef2ff;
+    --accent-shadow: #3730a3;
+    --electron: #0ea5e9;
+    --electron-soft: #e0f2fe;
+    --electron-shadow: #0369a1;
+    --success: #059669;
+    --success-soft: #d1fae5;
+    --success-border: #10b981;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --warn-border: #f59e0b;
+    --danger: #e11d48;
+    --danger-soft: #ffe4e6;
+    --fact-bg: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+    --fact-border: #818cf8;
+    --fact-text: #312e81;
+    --phase2-accent: #9333ea;
+    --phase2-soft: #f3e8ff;
+
+    /* Family tints (Light) */
+    --fam-alkali: #ffe4e6;
+    --fam-alkaline: #ffedd5;
+    --fam-transition: #f1f5f9;
+    --fam-post: #e0f2fe;
+    --fam-metalloid: #ccfbf1;
+    --fam-nonmetal: #dcfce7;
+    --fam-halogen: #fef9c3;
+    --fam-noble: #f3e8ff;
+    --fam-muted-text: #64748b;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0b1020;
+    --bg-dot: #1e293b;
+    --surface: #131b31;
+    --surface-alt: #1b2642;
+    --border: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #cbd5e1;
+    --accent: #818cf8;
+    --accent-soft: #1e1b4b;
+    --accent-shadow: #4f46e5;
+    --electron: #38bdf8;
+    --electron-soft: #0c4a6e;
+    --electron-shadow: #0284c7;
+    --success: #34d399;
+    --success-soft: #064e3b;
+    --success-border: #10b981;
+    --warn: #fbbf24;
+    --warn-soft: #451a03;
+    --warn-border: #d97706;
+    --danger: #fb7185;
+    --danger-soft: #4c0519;
+    --fact-bg: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%);
+    --fact-border: #818cf8;
+    --fact-text: #e0e7ff;
+    --phase2-accent: #c084fc;
+    --phase2-soft: #3b0764;
+
+    /* Family tints (Dark) */
+    --fam-alkali: #4c1d24;
+    --fam-alkaline: #4a2c16;
+    --fam-transition: #1e293b;
+    --fam-post: #16364d;
+    --fam-metalloid: #133c38;
+    --fam-nonmetal: #143d29;
+    --fam-halogen: #423715;
+    --fam-noble: #361f4d;
+    --fam-muted-text: #94a3b8;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size: 16px 16px;
+    color: var(--text-main);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  button {
+    font-family: inherit;
+    color: var(--text-main);
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100vw;
+  }
+
+  /* Top Bar */
+  .topbar {
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    gap: 8px;
+  }
+
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .title-group h1 {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .phase-badge {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    white-space: nowrap;
+  }
+
+  .phase-badge.phase2 {
+    background: var(--phase2-soft);
+    color: var(--phase2-accent);
+    border-color: var(--phase2-accent);
+  }
+
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .progress-pill {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--success-soft);
+    color: var(--success);
+    border: 1.5px solid var(--success-border);
+    white-space: nowrap;
+  }
+
+  .btn {
+    border: 1.5px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text-main);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--border);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    white-space: nowrap;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+  }
+
+  .btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 var(--border);
+  }
+
+  .btn-unlock {
+    border-color: var(--phase2-accent);
+    background: var(--phase2-soft);
+    color: var(--phase2-accent);
+    box-shadow: 0 2px 0 var(--phase2-accent);
+  }
+
+  /* Main Layout: Top PT + Bottom Hero Workspace */
+  .stage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 7px 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ion-badge {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1.5px solid var(--accent);
+    text-transform: none;
+  }
+
+  /* Full 18-Column Periodic Table */
+  .pt-card {
+    flex-shrink: 0;
+  }
+
+  .pt-grid {
+    display: grid;
+    grid-template-columns: repeat(18, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+  .pt-group-label {
+    text-align: center;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-muted);
+    padding-bottom: 1px;
+  }
+
+  .pt-cell {
+    position: relative;
+    border: 1.5px solid transparent;
+    border-radius: 5px;
+    height: 24px;
+    padding: 1px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: transform 0.08s ease, border-color 0.12s ease;
+    overflow: hidden;
+  }
+
+  .pt-cell.fam-alkali     { --tile-bg: var(--fam-alkali); background: var(--tile-bg); }
+  .pt-cell.fam-alkaline   { --tile-bg: var(--fam-alkaline); background: var(--tile-bg); }
+  .pt-cell.fam-transition { --tile-bg: var(--fam-transition); background: var(--tile-bg); }
+  .pt-cell.fam-post       { --tile-bg: var(--fam-post); background: var(--tile-bg); }
+  .pt-cell.fam-metalloid  { --tile-bg: var(--fam-metalloid); background: var(--tile-bg); }
+  .pt-cell.fam-nonmetal   { --tile-bg: var(--fam-nonmetal); background: var(--tile-bg); }
+  .pt-cell.fam-halogen    { --tile-bg: var(--fam-halogen); background: var(--tile-bg); }
+  .pt-cell.fam-noble      { --tile-bg: var(--fam-noble); background: var(--tile-bg); }
+
+  .pt-cell.var-charge {
+    opacity: 0.42;
+  }
+
+  .pt-cell.phase2-locked {
+    opacity: 0.48;
+    border-style: dashed;
+    border-color: var(--border);
+  }
+
+  .pt-cell.phase2-open {
+    opacity: 1;
+    border-color: var(--phase2-accent);
+  }
+
+  .pt-cell:hover {
+    transform: scale(1.12);
+    z-index: 4;
+    border-color: var(--accent);
+  }
+
+  .pt-cell.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+    z-index: 5;
+    opacity: 1;
+  }
+
+  /* Diagonal Partial Shading (1 of 2, 1 of 3, or 2 of 3 ions completed) */
+  .pt-cell.half-done {
+    background: linear-gradient(135deg, var(--success-soft) var(--done-pct, 50%), var(--tile-bg) var(--done-pct, 50%)) !important;
+    border-color: var(--success-border);
+    opacity: 1;
+  }
+
+  /* Full Shading (All required ions completed) */
+  .pt-cell.done {
+    background: var(--success-soft) !important;
+    border-color: var(--success-border);
+    opacity: 1;
+  }
+
+  .pt-z {
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    font-size: 7px;
+    font-weight: 700;
+    color: var(--text-muted);
+    line-height: 1;
+  }
+
+  .pt-sym {
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 3px;
+  }
+
+  .pt-check {
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    font-size: 8px;
+    font-weight: 900;
+    color: var(--success);
+    display: none;
+  }
+
+  .pt-cell.half-done .pt-check,
+  .pt-cell.done .pt-check {
+    display: block;
+  }
+
+  .pt-spacer {
+    pointer-events: none;
+  }
+
+  /* Bottom Workspace: Hero Ion Clicker (Left) + Bohr Model (Right) */
+  .workspace {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 10px;
+  }
+
+  /* Hero Ion Clicker Card */
+  .rxn-card {
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+
+  .equation-stage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--surface-alt);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 8px;
+  }
+
+  .eq-op {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--text-muted);
+  }
+
+  .eq-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    max-width: 140px;
+    height: 92px;
+    border-radius: 14px;
+    border: 2.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-main);
+    padding: 6px;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+  }
+
+  .eq-box.locked {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .eq-box.clicker-e {
+    cursor: pointer;
+    border-color: var(--electron);
+    box-shadow: 0 4px 0 var(--electron-shadow);
+  }
+
+  .eq-box.clicker-e:hover {
+    background: var(--electron-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--electron-shadow);
+  }
+
+  .eq-box.clicker-e:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--electron-shadow);
+  }
+
+  .eq-box.clicker-e.active-val {
+    background: var(--electron-soft);
+  }
+
+  .eq-box.clicker-ion {
+    cursor: pointer;
+    border-color: var(--accent);
+    box-shadow: 0 4px 0 var(--accent-shadow);
+  }
+
+  .eq-box.clicker-ion:hover {
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--accent-shadow);
+  }
+
+  .eq-box.clicker-ion:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--accent-shadow);
+  }
+
+  .eq-box.clicker-ion.active-val {
+    background: var(--accent-soft);
+  }
+
+  .eq-main {
+    font-size: 27px;
+    font-weight: 900;
+    line-height: 1.05;
+  }
+
+  .eq-main sup {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .eq-sub {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--text-muted);
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  /* Live Half-Equation Bar + Manual Test Button */
+  .live-eq-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--surface-alt);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 5px 10px;
+    flex-shrink: 0;
+  }
+
+  .live-eq-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .live-eq-tag {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .live-eq-formula {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--accent);
+    font-family: "Cambria Math", "Segoe UI", system-ui, sans-serif;
+    white-space: nowrap;
+  }
+
+  .live-eq-formula sup {
+    font-size: 11px;
+  }
+
+  .btn-test {
+    border: 2px solid var(--success-border);
+    background: var(--success);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 6px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #047857;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-test:hover {
+    filter: brightness(1.06);
+  }
+
+  .btn-test:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #047857;
+  }
+
+  /* Charge Bar */
+  .charge-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-alt);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .status-pill {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .pill-unbalanced { background: var(--danger-soft); color: var(--danger); }
+  .pill-warn       { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-border); }
+  .pill-stable     { background: var(--success-soft); color: var(--success); border: 1.5px solid var(--success-border); }
+
+  /* Feedback / Classical Name & Tidbit Box */
+  .feedback-box {
+    min-height: 70px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface-alt);
+    padding: 7px 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    font-size: 12.5px;
+    line-height: 1.32;
+  }
+
+  .feedback-box.fact-mode {
+    background: var(--fact-bg);
+    border-color: var(--fact-border);
+    color: var(--fact-text);
+  }
+
+  .feedback-label {
+    font-size: 10.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .name-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 2px;
+  }
+
+  .name-chip {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 6px;
+    background: rgba(79, 70, 229, 0.14);
+    border: 1px solid var(--fact-border);
+  }
+
+  /* Right Sidebar: Bohr Model */
+  .bohr-card {
+    padding: 8px 11px;
+  }
+
+  .bohr-wrap {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    width: 100%;
+  }
+
+  canvas#bohrCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .shell-banner {
+    margin-top: 4px;
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: var(--surface-alt);
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .shell-banner.full {
+    background: var(--success-soft);
+    color: var(--success);
+    border-color: var(--success-border);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .stat-tile {
+    background: var(--surface-alt);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .stat-val {
+    font-size: 11.5px;
+    font-weight: 900;
+    margin-top: 1px;
+    color: var(--text-main);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="title-group">
+      <h1>⚛️ Ion Story Lab</h1>
+      <span class="phase-badge" id="phaseBadge">Phase 1: Single-Charge</span>
+    </div>
+    <div class="top-actions">
+      <div class="progress-pill" id="progressPill">P1: 0 / 40</div>
+      <button class="btn btn-unlock" id="btnTeacherUnlock" title="Preview Phase 2 multi-charge elements immediately">🔓 Teacher Unlock</button>
+      <button class="btn" id="btnReset">↺ Reset</button>
+      <button class="btn" id="themeToggle">🌙 Dark</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- Full 18-Column Periodic Table -->
+    <section class="card pt-card">
+      <div class="card-header">
+        <span class="card-title" id="ptHeaderPrompt">1. Periodic Table — Phase 1: Single-Charge Ions (H requires both H⁺ & H⁻)</span>
+        <span class="card-title" id="selectedName">Sodium (Z = 11) • Group 1</span>
+      </div>
+      <div class="pt-grid" id="ptGrid"></div>
+    </section>
+
+    <!-- Bottom Hero Workspace -->
+    <div class="workspace">
+      <!-- Hero Ion Clicker -->
+      <section class="card rxn-card">
+        <div class="card-header">
+          <span class="card-title">2. Half-Reaction Builder</span>
+          <span class="card-title" id="reactionTypeTag">Ready to Build</span>
+        </div>
+
+        <div class="equation-stage">
+          <div class="eq-box locked" title="Neutral stock atom from the Periodic Table">
+            <div class="eq-main" id="leftAtomText">Na</div>
+            <div class="eq-sub">Stock Atom</div>
+          </div>
+
+          <div class="eq-op">+</div>
+
+          <button class="eq-box clicker-e" id="leftEBox" title="Click to cycle electrons gained (0–5)">
+            <div class="eq-main" id="leftEText">0e⁻</div>
+            <div class="eq-sub">Tap: e⁻ Gained</div>
+          </button>
+
+          <div class="eq-op">→</div>
+
+          <button class="eq-box clicker-ion" id="rightAtomBox" title="Click to cycle product ion charge">
+            <div class="eq-main" id="rightAtomText">Na</div>
+            <div class="eq-sub">Tap: Product Ion</div>
+          </button>
+
+          <div class="eq-op">+</div>
+
+          <button class="eq-box clicker-e" id="rightEBox" title="Click to cycle electrons lost (0–5)">
+            <div class="eq-main" id="rightEText">0e⁻</div>
+            <div class="eq-sub">Tap: e⁻ Lost</div>
+          </button>
+        </div>
+
+        <!-- Real-Time Half-Equation Display + Manual Test Setup Button -->
+        <div class="live-eq-row">
+          <div class="live-eq-wrap">
+            <span class="live-eq-tag">Half-Equation:</span>
+            <span class="live-eq-formula" id="liveEqDisplay">Na → Na</span>
+          </div>
+          <button class="btn-test" id="btnTestSetup">✓ Test Setup</button>
+        </div>
+
+        <div class="charge-bar">
+          <span>Left Charge: <strong id="leftChargeVal">0</strong></span>
+          <span class="status-pill pill-warn" id="statusPill">Ready to Test</span>
+          <span>Right Charge: <strong id="rightChargeVal">0</strong></span>
+        </div>
+
+        <div class="feedback-box" id="feedbackBox">
+          <div class="feedback-label" id="feedbackLabel">🧪 Lab Note</div>
+          <div id="feedbackText"></div>
+        </div>
+      </section>
+
+      <!-- Live Animated Bohr Model -->
+      <section class="card bohr-card">
+        <div class="card-header">
+          <span class="card-title">Product Ion Bohr Model</span>
+          <span class="ion-badge" id="bohrHeaderSym">Na</span>
+        </div>
+        <div class="bohr-wrap" id="bohrWrap">
+          <canvas id="bohrCanvas"></canvas>
+        </div>
+        <div class="shell-banner" id="shellBanner">7 empty spots in outer shell</div>
+        <div class="stats-grid">
+          <div class="stat-tile">
+            <div class="stat-label">Protons / Electrons</div>
+            <div class="stat-val" id="peCount">11p⁺ / 11e⁻</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">Shell Config</div>
+            <div class="stat-val" id="shellConfig">2, 8, 1</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const SHELL_CAPS = [2, 8, 8, 2];
+
+  // phase: 1 = Single-Charge (+ H dual-path), 2 = Multi-Charge Elements (17 elements; Po includes Po2+, Po4+, Po2-), null = non-playable
+  // requireAll: true for Hydrogen (H+ and H-) and all 17 Phase 2 elements (diagonal partial shade until all ions are built)
+  // ionInfo: keyed by charge string ('1', '-1', '2', '0', etc.) -> { iupac, classical, fact }
+  const PT_DATA = [
+    // Period 1
+    {
+      z: 1, sym: 'H', name: 'Hydrogen', r: 1, c: 1, fam: 'nonmetal', phase: 1, targets: [1, -1], requireAll: true,
+      ionInfo: {
+        '1':  { iupac: 'Hydrogen ion', fact: 'H⁺ is a bare single proton (often simply called a "proton")—it is what gives lemon juice, vinegar, and sour candy their sharp tang!' },
+        '-1': { iupac: 'Hydride ion',  fact: 'H⁻ gains 1 electron to match Helium’s full 2-electron shell, forming metal hydrides used in hydrogen storage.' }
+      }
+    },
+    {
+      z: 2, sym: 'He', name: 'Helium', r: 1, c: 18, fam: 'noble', phase: 1, targets: [0],
+      ionInfo: { '0': { iupac: 'Helium atom (noble gas)', fact: 'Helium already has a full first shell (2 electrons), so it transfers 0 electrons—perfect for floating party balloons!' } }
+    },
+    // Period 2
+    {
+      z: 3, sym: 'Li', name: 'Lithium', r: 2, c: 1, fam: 'alkali', phase: 1, targets: [1],
+      ionInfo: { '1': { iupac: 'Lithium ion', fact: 'Li⁺ ions zip back and forth inside rechargeable phone and EV batteries to store and release energy.' } }
+    },
+    {
+      z: 4, sym: 'Be', name: 'Beryllium', r: 2, c: 2, fam: 'alkaline', phase: 1, targets: [2],
+      ionInfo: { '2': { iupac: 'Beryllium ion', fact: 'Be²⁺ ions give emeralds and aquamarines their crystal structure and famous green-blue sparkle (trivia: it was once called "glucinum"!).' } }
+    },
+    {
+      z: 5, sym: 'B', name: 'Boron', r: 2, c: 13, fam: 'metalloid', phase: 1, targets: [3],
+      ionInfo: { '3': { iupac: 'Boron(III) ion', fact: 'Boron compounds make borosilicate glass (like Pyrex lab beakers) that will not crack over a Bunsen burner.' } }
+    },
+    {
+      z: 6, sym: 'C', name: 'Carbon', r: 2, c: 14, fam: 'nonmetal', phase: 1, targets: [4, -4],
+      ionInfo: {
+        '4':  { iupac: 'Carbon(IV) ion', fact: 'Carbon sits right in the middle with 4 valence electrons, so in nature it usually shares electrons to build DNA and diamonds!' },
+        '-4': { iupac: 'Carbide ion', fact: 'Carbide ions pair with metals like tungsten to form ultra-hard drill bits and cutting blades.' }
+      }
+    },
+    {
+      z: 7, sym: 'N', name: 'Nitrogen', r: 2, c: 15, fam: 'nonmetal', phase: 1, targets: [-3],
+      ionInfo: { '-3': { iupac: 'Nitride ion', fact: 'Nitride ions (N³⁻) pair with gallium to create GaN crystals—the secret behind bright white LEDs and fast chargers.' } }
+    },
+    {
+      z: 8, sym: 'O', name: 'Oxygen', r: 2, c: 16, fam: 'nonmetal', phase: 1, targets: [-2],
+      ionInfo: { '-2': { iupac: 'Oxide ion', fact: 'Oxide ions (O²⁻) bond with iron to form rust, and with aluminum to create sparkling rubies and sapphires!' } }
+    },
+    {
+      z: 9, sym: 'F', name: 'Fluorine', r: 2, c: 17, fam: 'halogen', phase: 1, targets: [-1],
+      ionInfo: { '-1': { iupac: 'Fluoride ion', fact: 'Fluoride ions (F⁻) are added to toothpaste because they strengthen tooth enamel against cavity-causing acids.' } }
+    },
+    {
+      z: 10, sym: 'Ne', name: 'Neon', r: 2, c: 18, fam: 'noble', phase: 1, targets: [0],
+      ionInfo: { '0': { iupac: 'Neon atom (noble gas)', fact: 'Neon has a full octet (2, 8) and transfers 0 electrons—zapping neon gas with electricity makes it glow iconic red-orange.' } }
+    },
+    // Period 3
+    {
+      z: 11, sym: 'Na', name: 'Sodium', r: 3, c: 1, fam: 'alkali', phase: 1, targets: [1],
+      ionInfo: { '1': { iupac: 'Sodium ion', fact: 'Sodium ions (Na⁺, from Latin "natrium") fire nerve impulses in your brain and pair with chloride to make everyday table salt.' } }
+    },
+    {
+      z: 12, sym: 'Mg', name: 'Magnesium', r: 3, c: 2, fam: 'alkaline', phase: 1, targets: [2],
+      ionInfo: { '2': { iupac: 'Magnesium ion', fact: 'A single Mg²⁺ ion sits right at the center of every chlorophyll molecule, helping plants catch sunlight.' } }
+    },
+    {
+      z: 13, sym: 'Al', name: 'Aluminum', r: 3, c: 13, fam: 'post', phase: 1, targets: [3],
+      ionInfo: { '3': { iupac: 'Aluminum ion', fact: 'Al³⁺ ions form a tough, invisible oxide skin on soda cans and airplane wings that prevents rust.' } }
+    },
+    {
+      z: 14, sym: 'Si', name: 'Silicon', r: 3, c: 14, fam: 'metalloid', phase: 1, targets: [4, -4],
+      ionInfo: {
+        '4':  { iupac: 'Silicon(IV) ion', fact: 'Like carbon, silicon has 4 valence electrons—in sand and computer chips, it prefers sharing electrons in giant networks.' },
+        '-4': { iupac: 'Silicide ion', fact: 'Silicides are used in high-temperature heating elements and specialized microchip contacts.' }
+      }
+    },
+    {
+      z: 15, sym: 'P', name: 'Phosphorus', r: 3, c: 15, fam: 'nonmetal', phase: 1, targets: [-3],
+      ionInfo: { '-3': { iupac: 'Phosphide ion', fact: 'Phosphide ions (P³⁻) power specialized semiconductors, while phosphorus-oxygen ions form the backbone of your DNA.' } }
+    },
+    {
+      z: 16, sym: 'S', name: 'Sulfur', r: 3, c: 16, fam: 'nonmetal', phase: 1, targets: [-2],
+      ionInfo: { '-2': { iupac: 'Sulfide ion', fact: 'Sulfide ions (S²⁻) bond with iron to make "fool\'s gold" (pyrite) and form the dark tarnish on old silverware.' } }
+    },
+    {
+      z: 17, sym: 'Cl', name: 'Chlorine', r: 3, c: 17, fam: 'halogen', phase: 1, targets: [-1],
+      ionInfo: { '-1': { iupac: 'Chloride ion', fact: 'Neutral chlorine gas is toxic, but once it gains 1 electron to become chloride (Cl⁻), it is safe and vital for your cells!' } }
+    },
+    {
+      z: 18, sym: 'Ar', name: 'Argon', r: 3, c: 18, fam: 'noble', phase: 1, targets: [0],
+      ionInfo: { '0': { iupac: 'Argon atom (noble gas)', fact: 'Argon has a full outer shell (2, 8, 8) and makes up nearly 1% of the air you breathe—it also insulates double-pane windows.' } }
+    },
+    // Period 4
+    {
+      z: 19, sym: 'K', name: 'Potassium', r: 4, c: 1, fam: 'alkali', phase: 1, targets: [1],
+      ionInfo: { '1': { iupac: 'Potassium ion', fact: 'Potassium ions (K⁺, from Latin "kalium") team up with sodium ions to keep your heart beating in rhythm and your muscles moving.' } }
+    },
+    {
+      z: 20, sym: 'Ca', name: 'Calcium', r: 4, c: 2, fam: 'alkaline', phase: 1, targets: [2],
+      ionInfo: { '2': { iupac: 'Calcium ion', fact: 'Calcium ions (Ca²⁺) build strong bones and teeth, and they also form seashells, pearls, and chalkboard chalk.' } }
+    },
+    {
+      z: 21, sym: 'Sc', name: 'Scandium', r: 4, c: 3, fam: 'transition', phase: 1, targets: [3], val: 3, core: 'Ar',
+      ionInfo: { '3': { iupac: 'Scandium ion', fact: 'Scandium is a fixed-charge transition metal (Sc³⁺)! Mixed with aluminum, it makes ultra-light, high-strength baseball bats and bike frames.' } }
+    },
+    {
+      z: 22, sym: 'Ti', name: 'Titanium', r: 4, c: 4, fam: 'transition', phase: 2, targets: [3, 4], requireAll: true, val: 4, core: 'Ar',
+      ionInfo: {
+        '3': { iupac: 'Titanium(III) ion', classical: 'Titanous', fact: 'Titanous (Ti³⁺) solutions glow a vivid violet-purple and are used as strong reducing agents in chemistry labs.' },
+        '4': { iupac: 'Titanium(IV) ion',  classical: 'Titanic',  fact: 'Titanic oxide (TiO₂) is the ultra-bright white pigment in paint, toothpaste, and powdered donuts!' }
+      }
+    },
+    { z: 23, sym: 'V', name: 'Vanadium', r: 4, c: 5, fam: 'transition', phase: null, targets: null },
+    {
+      z: 24, sym: 'Cr', name: 'Chromium', r: 4, c: 6, fam: 'transition', phase: 2, targets: [2, 3], requireAll: true, val: 3, core: 'Ar',
+      ionInfo: {
+        '2': { iupac: 'Chromium(II) ion',  classical: 'Chromous', fact: 'Chromous (Cr²⁺) ions turn water sky-blue, but oxidize rapidly the moment they touch air.' },
+        '3': { iupac: 'Chromium(III) ion', classical: 'Chromic',  fact: 'Trace amounts of chromic (Cr³⁺) ions are what give both rubies their red glow and emeralds their deep green!' }
+      }
+    },
+    {
+      z: 25, sym: 'Mn', name: 'Manganese', r: 4, c: 7, fam: 'transition', phase: 2, targets: [2, 3], requireAll: true, val: 3, core: 'Ar',
+      ionInfo: {
+        '2': { iupac: 'Manganese(II) ion',  classical: 'Manganous', fact: 'Manganous (Mn²⁺) ions are pale pink in solution and are essential for plants to split water during photosynthesis.' },
+        '3': { iupac: 'Manganese(III) ion', classical: 'Manganic',  fact: 'Manganic (Mn³⁺) compounds are used inside alkaline batteries and violet-colored glass.' }
+      }
+    },
+    {
+      z: 26, sym: 'Fe', name: 'Iron', r: 4, c: 8, fam: 'transition', phase: 2, targets: [2, 3], requireAll: true, val: 3, core: 'Ar',
+      ionInfo: {
+        '2': { iupac: 'Iron(II) ion',  classical: 'Ferrous', fact: 'Ferrous (Fe²⁺) ions sit at the heart of hemoglobin in your red blood cells, carrying oxygen from your lungs.' },
+        '3': { iupac: 'Iron(III) ion', classical: 'Ferric',  fact: 'Ferric (Fe³⁺) oxide is classic reddish-brown rust—and it is what gives the planet Mars its red surface!' }
+      }
+    },
+    {
+      z: 27, sym: 'Co', name: 'Cobalt', r: 4, c: 9, fam: 'transition', phase: 2, targets: [2, 3], requireAll: true, val: 3, core: 'Ar',
+      ionInfo: {
+        '2': { iupac: 'Cobalt(II) ion',  classical: 'Cobaltous', fact: 'Cobaltous (Co²⁺) creates legendary deep cobalt-blue stained glass and changes from pink to blue when dry.' },
+        '3': { iupac: 'Cobalt(III) ion', classical: 'Cobaltic',  fact: 'Cobaltic (Co³⁺) ions form the active cathode inside many lithium-ion laptop and smartphone batteries.' }
+      }
+    },
+    {
+      z: 28, sym: 'Ni', name: 'Nickel', r: 4, c: 10, fam: 'transition', phase: 2, targets: [2, 3], requireAll: true, val: 3, core: 'Ar',
+      ionInfo: {
+        '2': { iupac: 'Nickel(II) ion',  classical: 'Nickelous', fact: 'Nickelous (Ni²⁺) salts dissolve to make bright emerald-green solutions and are used in electroplating.' },
+        '3': { iupac: 'Nickel(III) ion', classical: 'Nickelic',  fact: 'Nickelic (Ni³⁺) oxide-hydroxide powers rechargeable NiMH batteries used in hybrid cars.' }
+      }
+    },
+    {
+      z: 29, sym: 'Cu', name: 'Copper', r: 4, c: 11, fam: 'transition', phase: 2, targets: [1, 2], requireAll: true, val: 2, core: 'Ar',
+      ionInfo: {
+        '1': { iupac: 'Copper(I) ion',  classical: 'Cuprous', fact: 'Cuprous oxide (Cu₂O) is a brick-red solid used in anti-fouling ship hull paint and early solar cells.' },
+        '2': { iupac: 'Copper(II) ion', classical: 'Cupric',  fact: 'Cupric (Cu²⁺) ions give the Statue of Liberty its blue-green patina and turn flame tests vivid teal-green!' }
+      }
+    },
+    {
+      z: 30, sym: 'Zn', name: 'Zinc', r: 4, c: 12, fam: 'transition', phase: 1, targets: [2], val: 2, core: 'Ar',
+      ionInfo: { '2': { iupac: 'Zinc ion', fact: 'Zinc is a single-charge transition metal (Zn²⁺)! Zinc oxide is the classic white sunscreen on lifeguards\' noses.' } }
+    },
+    {
+      z: 31, sym: 'Ga', name: 'Gallium', r: 4, c: 13, fam: 'post', phase: 1, targets: [3], val: 3, core: 'Ar',
+      ionInfo: { '3': { iupac: 'Gallium ion', fact: 'Gallium metal melts right in the palm of your hand, and Ga³⁺ ions are used inside high-speed smartphone chips!' } }
+    },
+    { z: 32, sym: 'Ge', name: 'Germanium', r: 4, c: 14, fam: 'metalloid', phase: null, targets: null },
+    {
+      z: 33, sym: 'As', name: 'Arsenic', r: 4, c: 15, fam: 'metalloid', phase: 1, targets: [-3], val: 5, core: 'Ar',
+      ionInfo: { '-3': { iupac: 'Arsenide ion', fact: 'Arsenide ions (As³⁻) pair with gallium to make ultra-efficient solar panels for space satellites.' } }
+    },
+    {
+      z: 34, sym: 'Se', name: 'Selenium', r: 4, c: 16, fam: 'nonmetal', phase: 1, targets: [-2], val: 6, core: 'Ar',
+      ionInfo: { '-2': { iupac: 'Selenide ion', fact: 'Selenide ions (Se²⁻) are used in tiny quantum dots that give QLED televisions their ultra-vivid colors!' } }
+    },
+    {
+      z: 35, sym: 'Br', name: 'Bromine', r: 4, c: 17, fam: 'halogen', phase: 1, targets: [-1], val: 7, core: 'Ar',
+      ionInfo: { '-1': { iupac: 'Bromide ion', fact: 'Bromide ions (Br⁻) are found naturally in ocean seawater and are used in flame-retardant safety materials.' } }
+    },
+    {
+      z: 36, sym: 'Kr', name: 'Krypton', r: 4, c: 18, fam: 'noble', phase: 1, targets: [0], val: 8, core: 'Ar',
+      ionInfo: { '0': { iupac: 'Krypton atom (noble gas)', fact: 'Krypton has a full outer shell of 8 electrons and glows brilliant white inside high-speed photography flashes.' } }
+    },
+    // Period 5
+    {
+      z: 37, sym: 'Rb', name: 'Rubidium', r: 5, c: 1, fam: 'alkali', phase: 1, targets: [1], val: 1, core: 'Kr',
+      ionInfo: { '1': { iupac: 'Rubidium ion', fact: 'Rubidium ions (Rb⁺) give fireworks a deep purple-red glow and help atomic clocks keep ultra-accurate time.' } }
+    },
+    {
+      z: 38, sym: 'Sr', name: 'Strontium', r: 5, c: 2, fam: 'alkaline', phase: 1, targets: [2], val: 2, core: 'Kr',
+      ionInfo: { '2': { iupac: 'Strontium ion', fact: 'Strontium ions (Sr²⁺) are the secret behind bright crimson-red fireworks and emergency road flares!' } }
+    },
+    { z: 39, sym: 'Y',  name: 'Yttrium',    r: 5, c: 3,  fam: 'transition', phase: null, targets: null },
+    { z: 40, sym: 'Zr', name: 'Zirconium',  r: 5, c: 4,  fam: 'transition', phase: null, targets: null },
+    { z: 41, sym: 'Nb', name: 'Niobium',    r: 5, c: 5,  fam: 'transition', phase: null, targets: null },
+    { z: 42, sym: 'Mo', name: 'Molybdenum', r: 5, c: 6,  fam: 'transition', phase: null, targets: null },
+    { z: 43, sym: 'Tc', name: 'Technetium', r: 5, c: 7,  fam: 'transition', phase: null, targets: null },
+    { z: 44, sym: 'Ru', name: 'Ruthenium',  r: 5, c: 8,  fam: 'transition', phase: null, targets: null },
+    { z: 45, sym: 'Rh', name: 'Rhodium',    r: 5, c: 9,  fam: 'transition', phase: null, targets: null },
+    {
+      z: 46, sym: 'Pd', name: 'Palladium', r: 5, c: 10, fam: 'transition', phase: 2, targets: [2, 4], requireAll: true, val: 4, core: 'Kr',
+      ionInfo: {
+        '2': { iupac: 'Palladium(II) ion', classical: 'Palladous', fact: 'Palladium(II) catalysts are superstars in organic chemistry and help car catalytic converters clean exhaust fumes.' },
+        '4': { iupac: 'Palladium(IV) ion', classical: 'Palladic',  fact: 'Palladic (Pd⁴⁺) complexes form in strong oxidizing conditions and are used in specialized electronic coatings.' }
+      }
+    },
+    {
+      z: 47, sym: 'Ag', name: 'Silver', r: 5, c: 11, fam: 'transition', phase: 1, targets: [1], val: 1, core: 'Kr',
+      ionInfo: { '1': { iupac: 'Silver ion', fact: 'Silver (from Latin "argentum") is a favorite single-charge transition metal (Ag⁺)! Silver ions naturally fight bacteria in medical bandages.' } }
+    },
+    {
+      z: 48, sym: 'Cd', name: 'Cadmium', r: 5, c: 12, fam: 'transition', phase: 1, targets: [2], val: 2, core: 'Kr',
+      ionInfo: { '2': { iupac: 'Cadmium ion', fact: 'Cadmium always forms Cd²⁺ ions and was historically used to create famous bright yellow and red artist paints.' } }
+    },
+    {
+      z: 49, sym: 'In', name: 'Indium', r: 5, c: 13, fam: 'post', phase: 1, targets: [3], val: 3, core: 'Kr',
+      ionInfo: { '3': { iupac: 'Indium ion', fact: 'Indium ions (In³⁺) form a clear, electrically conductive coating on almost every smartphone touchscreen!' } }
+    },
+    {
+      z: 50, sym: 'Sn', name: 'Tin', r: 5, c: 14, fam: 'post', phase: 2, targets: [2, 4], requireAll: true, val: 4, core: 'Kr',
+      ionInfo: {
+        '2': { iupac: 'Tin(II) ion', classical: 'Stannous', fact: 'Stannous fluoride (SnF₂) is an active cavity-fighting ingredient found in many enamel-protecting toothpastes!' },
+        '4': { iupac: 'Tin(IV) ion', classical: 'Stannic',  fact: 'Stannic oxide (SnO₂) is used in gas sensors and transparent conductive glass coatings.' }
+      }
+    },
+    {
+      z: 51, sym: 'Sb', name: 'Antimony', r: 5, c: 15, fam: 'metalloid', phase: 2, targets: [3, 5], requireAll: true, val: 5, core: 'Kr',
+      ionInfo: {
+        '3': { iupac: 'Antimony(III) ion', classical: 'Antimonous (Stibnous)', fact: 'Antimony(III) sulfide was used as ancient Egyptian eyeliner (kohl) and is now used in safety matches.' },
+        '5': { iupac: 'Antimony(V) ion',   classical: 'Antimonic (Stibnic)',   fact: 'Antimony(V) compounds act as flame-retardant synergists in plastics and aircraft fabrics.' }
+      }
+    },
+    {
+      z: 52, sym: 'Te', name: 'Tellurium', r: 5, c: 16, fam: 'metalloid', phase: 1, targets: [-2], val: 6, core: 'Kr',
+      ionInfo: { '-2': { iupac: 'Telluride ion', fact: 'Telluride ions (Te²⁻) are used in thermoelectric coolers and thin-film solar panels.' } }
+    },
+    {
+      z: 53, sym: 'I', name: 'Iodine', r: 5, c: 17, fam: 'halogen', phase: 1, targets: [-1], val: 7, core: 'Kr',
+      ionInfo: { '-1': { iupac: 'Iodide ion', fact: 'Iodide ions (I⁻) are added to "iodized" table salt to keep your thyroid gland healthy and energized.' } }
+    },
+    {
+      z: 54, sym: 'Xe', name: 'Xenon', r: 5, c: 18, fam: 'noble', phase: 1, targets: [0], val: 8, core: 'Kr',
+      ionInfo: { '0': { iupac: 'Xenon atom (noble gas)', fact: 'Xenon has a full outer shell of 8 electrons and powers ion thrusters on deep-space NASA probes!' } }
+    },
+    // Period 6
+    {
+      z: 55, sym: 'Cs', name: 'Cesium', r: 6, c: 1, fam: 'alkali', phase: 1, targets: [1], val: 1, core: 'Xe',
+      ionInfo: { '1': { iupac: 'Cesium ion', fact: 'Cesium loses its 1 outer electron so easily (Cs⁺) that it is one of the most reactive metals on Earth!' } }
+    },
+    {
+      z: 56, sym: 'Ba', name: 'Barium', r: 6, c: 2, fam: 'alkaline', phase: 1, targets: [2], val: 2, core: 'Xe',
+      ionInfo: { '2': { iupac: 'Barium ion', fact: 'Barium ions (Ba²⁺) create dazzling emerald-green fireworks and help doctors take X-rays of the digestive tract.' } }
+    },
+    { z: 57, sym: 'La', name: 'Lanthanum', r: 6, c: 3,  fam: 'transition', phase: null, targets: null },
+    { z: 72, sym: 'Hf', name: 'Hafnium',   r: 6, c: 4,  fam: 'transition', phase: null, targets: null },
+    { z: 73, sym: 'Ta', name: 'Tantalum',  r: 6, c: 5,  fam: 'transition', phase: null, targets: null },
+    { z: 74, sym: 'W',  name: 'Tungsten',  r: 6, c: 6,  fam: 'transition', phase: null, targets: null },
+    { z: 75, sym: 'Re', name: 'Rhenium',   r: 6, c: 7,  fam: 'transition', phase: null, targets: null },
+    { z: 76, sym: 'Os', name: 'Osmium',    r: 6, c: 8,  fam: 'transition', phase: null, targets: null },
+    { z: 77, sym: 'Ir', name: 'Iridium',   r: 6, c: 9,  fam: 'transition', phase: null, targets: null },
+    {
+      z: 78, sym: 'Pt', name: 'Platinum', r: 6, c: 10, fam: 'transition', phase: 2, targets: [2, 4], requireAll: true, val: 4, core: 'Xe',
+      ionInfo: {
+        '2': { iupac: 'Platinum(II) ion', classical: 'Platinous', fact: 'Platinum(II) sits at the center of cisplatin, one of the most important life-saving chemotherapy medicines ever discovered.' },
+        '4': { iupac: 'Platinum(IV) ion', classical: 'Platinic',  fact: 'Platinic (Pt⁴⁺) chloride forms when platinum dissolves in aqua regia and is used to make high-efficiency fuel cell catalysts.' }
+      }
+    },
+    {
+      z: 79, sym: 'Au', name: 'Gold', r: 6, c: 11, fam: 'transition', phase: 2, targets: [1, 3], requireAll: true, val: 3, core: 'Xe',
+      ionInfo: {
+        '1': { iupac: 'Gold(I) ion',   classical: 'Aurous', fact: 'Aurous (Au⁺) compounds are used in specialized rheumatoid arthritis treatments and gold electroplating.' },
+        '3': { iupac: 'Gold(III) ion', classical: 'Auric',  fact: 'Auric (Au³⁺) chloride forms when gold dissolves in aqua regia ("royal water"), a mix of nitric and hydrochloric acid.' }
+      }
+    },
+    {
+      z: 80, sym: 'Hg', name: 'Mercury', r: 6, c: 12, fam: 'transition', phase: 2, targets: [1, 2], requireAll: true, val: 2, core: 'Xe',
+      ionInfo: {
+        '1': { iupac: 'Mercury(I) ion',  classical: 'Mercurous', fact: 'Mercurous ions actually pair up in nature as Hg₂²⁺ (calomel), used in precision reference electrodes.' },
+        '2': { iupac: 'Mercury(II) ion', classical: 'Mercuric',  fact: 'Mercuric sulfide (cinnabar) is the bright red mineral that gave Renaissance paintings their vermilion pigment.' }
+      }
+    },
+    {
+      z: 81, sym: 'Tl', name: 'Thallium', r: 6, c: 13, fam: 'post', phase: 2, targets: [1, 3], requireAll: true, val: 3, core: 'Xe',
+      ionInfo: {
+        '1': { iupac: 'Thallium(I) ion',   classical: 'Thallous', fact: 'Thallous (Tl⁺) ions mimic potassium ions in size and are used in specialized infrared optical lenses.' },
+        '3': { iupac: 'Thallium(III) ion', classical: 'Thallic',  fact: 'Thallic (Tl³⁺) oxide is a dark brown semiconductor used in high-temperature superconducting ceramics.' }
+      }
+    },
+    {
+      z: 82, sym: 'Pb', name: 'Lead', r: 6, c: 14, fam: 'post', phase: 2, targets: [2, 4], requireAll: true, val: 4, core: 'Xe',
+      ionInfo: {
+        '2': { iupac: 'Lead(II) ion', classical: 'Plumbous', fact: 'Plumbous (Pb²⁺) sulfate forms inside car lead-acid batteries—and "plumbum" is where the word "plumber" comes from!' },
+        '4': { iupac: 'Lead(IV) ion', classical: 'Plumbic',  fact: 'Plumbic oxide (PbO₂) coats the positive plates inside rechargeable car batteries.' }
+      }
+    },
+    {
+      z: 83, sym: 'Bi', name: 'Bismuth', r: 6, c: 15, fam: 'post', phase: 2, targets: [3, 5], requireAll: true, val: 5, core: 'Xe',
+      ionInfo: {
+        '3': { iupac: 'Bismuth(III) ion', classical: 'Bismuthous', fact: 'Bismuth(III) subsalicylate is the active pink ingredient in Pepto-Bismol that soothes upset stomachs!' },
+        '5': { iupac: 'Bismuth(V) ion',   classical: 'Bismuthic',  fact: 'Sodium bismuthate (Bi⁵⁺) is one of the strongest oxidizing agents in inorganic chemistry.' }
+      }
+    },
+    {
+      z: 84, sym: 'Po', name: 'Polonium', r: 6, c: 16, fam: 'post', phase: 2, targets: [2, 4, -2], requireAll: true, val: 6, core: 'Xe',
+      ionInfo: {
+        '2':  { iupac: 'Polonium(II) ion', fact: 'Many periodic tables color polonium as a metalloid because it sits on the staircase, but its crystal structure and conductivity make it a true post-transition metal! Po²⁺ is stabilized by the inert-pair effect, just like Pb²⁺.' },
+        '4':  { iupac: 'Polonium(IV) ion', fact: 'Polonium(IV) is polonium\'s most stable oxidation state (like Sn⁴⁺ and Pb⁴⁺). Discovered by Marie and Pierre Curie and named after Poland, its compounds glow softly blue from intense radioactivity!' },
+        '-2': { iupac: 'Polonide ion',     fact: 'Even as a post-transition metal, polonium still plays by Group 16 rules—forming ionic polonides (like Na₂Po and CaPo) and natural lead polonide (PbPo), pulling double duty on both sides of the ion chart!' }
+      }
+    },
+    { z: 85, sym: 'At', name: 'Astatine', r: 6, c: 17, fam: 'halogen', phase: null, targets: null },
+    {
+      z: 86, sym: 'Rn', name: 'Radon', r: 6, c: 18, fam: 'noble', phase: 1, targets: [0], val: 8, core: 'Xe',
+      ionInfo: { '0': { iupac: 'Radon atom (noble gas)', fact: 'Radon is a heavy, radioactive noble gas with a full outer shell of 8 electrons—it transfers 0 electrons.' } }
+    },
+    // Period 7
+    {
+      z: 87, sym: 'Fr', name: 'Francium', r: 7, c: 1, fam: 'alkali', phase: 1, targets: [1], val: 1, core: 'Rn',
+      ionInfo: { '1': { iupac: 'Francium ion', fact: 'Francium is the rarest naturally occurring alkali metal—it is so radioactive and unstable that less than an ounce exists in Earth\'s crust at any moment!' } }
+    },
+    {
+      z: 88, sym: 'Ra', name: 'Radium', r: 7, c: 2, fam: 'alkaline', phase: 1, targets: [2], val: 2, core: 'Rn',
+      ionInfo: { '2': { iupac: 'Radium ion', fact: 'Discovered by Marie and Pierre Curie, Ra²⁺ ions behave chemically like Ca²⁺ and were once used in glowing watch dials before radioactivity was understood.' } }
+    },
+    { z: 89,  sym: 'Ac', name: 'Actinium',      r: 7, c: 3,  fam: 'transition', phase: null, targets: null },
+    { z: 104, sym: 'Rf', name: 'Rutherfordium', r: 7, c: 4,  fam: 'transition', phase: null, targets: null },
+    { z: 105, sym: 'Db', name: 'Dubnium',       r: 7, c: 5,  fam: 'transition', phase: null, targets: null },
+    { z: 106, sym: 'Sg', name: 'Seaborgium',    r: 7, c: 6,  fam: 'transition', phase: null, targets: null },
+    { z: 107, sym: 'Bh', name: 'Bohrium',       r: 7, c: 7,  fam: 'transition', phase: null, targets: null },
+    { z: 108, sym: 'Hs', name: 'Hassium',       r: 7, c: 8,  fam: 'transition', phase: null, targets: null },
+    { z: 109, sym: 'Mt', name: 'Meitnerium',    r: 7, c: 9,  fam: 'transition', phase: null, targets: null },
+    { z: 110, sym: 'Ds', name: 'Darmstadtium',  r: 7, c: 10, fam: 'transition', phase: null, targets: null },
+    { z: 111, sym: 'Rg', name: 'Roentgenium',   r: 7, c: 11, fam: 'transition', phase: null, targets: null },
+    { z: 112, sym: 'Cn', name: 'Copernicium',   r: 7, c: 12, fam: 'transition', phase: null, targets: null },
+    { z: 113, sym: 'Nh', name: 'Nihonium',      r: 7, c: 13, fam: 'post',       phase: null, targets: null },
+    { z: 114, sym: 'Fl', name: 'Flerovium',     r: 7, c: 14, fam: 'post',       phase: null, targets: null },
+    { z: 115, sym: 'Mc', name: 'Moscovium',     r: 7, c: 15, fam: 'post',       phase: null, targets: null },
+    { z: 116, sym: 'Lv', name: 'Livermorium',   r: 7, c: 16, fam: 'post',       phase: null, targets: null },
+    { z: 117, sym: 'Ts', name: 'Tennessine',    r: 7, c: 17, fam: 'halogen',    phase: null, targets: null },
+    { z: 118, sym: 'Og', name: 'Oganesson',     r: 7, c: 18, fam: 'noble',      phase: null, targets: null }
+  ];
+
+  const PHASE1_ELEMENTS = PT_DATA.filter(e => e.phase === 1);
+  const PHASE2_ELEMENTS = PT_DATA.filter(e => e.phase === 2);
+  const CHARGE_CYCLE = [0, 1, 2, 3, 4, 5, -4, -3, -2, -1];
+
+  const state = {
+    z: 11,
+    leftE: 0,
+    rightCharge: 0,
+    rightE: 0,
+    // Map<z, Set<charge>> storing every verified ion charge for each element
+    completedIons: new Map(),
+    phase2Unlocked: false,
+    lastTestResult: null, // null | { ok, type, label, html }
+    theme: 'light',
+    orbitAngle: 0,
+    sparkles: []
+  };
+
+  // DOM Elements
+  const htmlEl = document.documentElement;
+  const ptGrid = document.getElementById('ptGrid');
+  const phaseBadge = document.getElementById('phaseBadge');
+  const ptHeaderPrompt = document.getElementById('ptHeaderPrompt');
+  const progressPill = document.getElementById('progressPill');
+  const selectedName = document.getElementById('selectedName');
+  const reactionTypeTag = document.getElementById('reactionTypeTag');
+
+  const leftAtomText = document.getElementById('leftAtomText');
+  const leftEBox = document.getElementById('leftEBox');
+  const leftEText = document.getElementById('leftEText');
+  const rightAtomBox = document.getElementById('rightAtomBox');
+  const rightAtomText = document.getElementById('rightAtomText');
+  const rightEBox = document.getElementById('rightEBox');
+  const rightEText = document.getElementById('rightEText');
+  const liveEqDisplay = document.getElementById('liveEqDisplay');
+  const btnTestSetup = document.getElementById('btnTestSetup');
+
+  const leftChargeVal = document.getElementById('leftChargeVal');
+  const rightChargeVal = document.getElementById('rightChargeVal');
+  const statusPill = document.getElementById('statusPill');
+  const feedbackBox = document.getElementById('feedbackBox');
+  const feedbackLabel = document.getElementById('feedbackLabel');
+  const feedbackText = document.getElementById('feedbackText');
+
+  const bohrHeaderSym = document.getElementById('bohrHeaderSym');
+  const bohrWrap = document.getElementById('bohrWrap');
+  const canvas = document.getElementById('bohrCanvas');
+  const ctx = canvas.getContext('2d');
+  const shellBanner = document.getElementById('shellBanner');
+  const peCount = document.getElementById('peCount');
+  const shellConfig = document.getElementById('shellConfig');
+
+  const btnTeacherUnlock = document.getElementById('btnTeacherUnlock');
+  const btnReset = document.getElementById('btnReset');
+  const themeToggle = document.getElementById('themeToggle');
+
+  function getEl(z) {
+    return PT_DATA.find(e => e.z === z);
+  }
+
+  function getElementStatus(el) {
+    const doneSet = state.completedIons.get(el.z);
+    const count = doneSet ? doneSet.size : 0;
+    if (el.requireAll) {
+      if (count >= el.targets.length) return 'done';
+      if (count > 0) return 'half';
+      return 'none';
+    }
+    return count > 0 ? 'done' : 'none';
+  }
+
+  function countMastered(list) {
+    return list.filter(e => getElementStatus(e) === 'done').length;
+  }
+
+  function formatIonHTML(sym, charge) {
+    if (charge === 0) return sym;
+    const mag = Math.abs(charge) === 1 ? '' : Math.abs(charge);
+    const sign = charge > 0 ? '+' : '−';
+    return `${sym}<sup>${mag}${sign}</sup>`;
+  }
+
+  function formatETerm(n) {
+    return n === 1 ? 'e⁻' : `${n}e⁻`;
+  }
+
+  function formatLiveEquationHTML(sym, leftE, rightCharge, rightE) {
+    const leftSide = leftE > 0 ? `${sym} + ${formatETerm(leftE)}` : sym;
+    const rightIon = formatIonHTML(sym, rightCharge);
+    const rightSide = rightE > 0 ? `${rightIon} + ${formatETerm(rightE)}` : rightIon;
+    return `${leftSide} → ${rightSide}`;
+  }
+
+  function formatSigned(n) {
+    if (n === 0) return '0';
+    return n > 0 ? `+${n}` : `−${Math.abs(n)}`;
+  }
+
+  function getShellCounts(eCount) {
+    let rem = Math.max(0, eCount);
+    return SHELL_CAPS.map(cap => {
+      const put = Math.min(rem, cap);
+      rem -= put;
+      return put;
+    });
+  }
+
+  function nextCharge(current, el) {
+    let idx = CHARGE_CYCLE.indexOf(current);
+    for (let i = 0; i < CHARGE_CYCLE.length; i++) {
+      idx = (idx + 1) % CHARGE_CYCLE.length;
+      const cand = CHARGE_CYCLE[idx];
+      if (el.z <= 20) {
+        const eAfter = el.z - cand;
+        if (eAfter >= 0 && eAfter <= 20) return cand;
+      } else {
+        const vAfter = (el.val ?? 4) - cand;
+        if (vAfter >= 0 && vAfter <= 8) return cand;
+      }
+    }
+    return 0;
+  }
+
+  function spawnSparkles() {
+    const rect = bohrWrap.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const colors = ['#10b981', '#f59e0b', '#6366f1', '#ec4899', '#0ea5e9'];
+    for (let i = 0; i < 22; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 1.4 + Math.random() * 2.8;
+      state.sparkles.push({
+        x: cx, y: cy,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp,
+        life: 1,
+        color: colors[i % colors.length],
+        size: 3 + Math.random() * 3
+      });
+    }
+  }
+
+  function buildPeriodicTable() {
+    ptGrid.innerHTML = '';
+    for (let g = 1; g <= 18; g++) {
+      const lbl = document.createElement('div');
+      lbl.className = 'pt-group-label';
+      lbl.textContent = g;
+      ptGrid.appendChild(lbl);
+    }
+
+    for (let r = 1; r <= 7; r++) {
+      for (let c = 1; c <= 18; c++) {
+        const el = PT_DATA.find(e => e.r === r && e.c === c);
+        if (!el) {
+          const sp = document.createElement('div');
+          sp.className = 'pt-spacer';
+          ptGrid.appendChild(sp);
+          continue;
+        }
+        const cell = document.createElement('button');
+        cell.className = `pt-cell fam-${el.fam}`;
+        cell.dataset.z = el.z;
+        cell.title = `${el.name} (Z=${el.z}, Group ${el.c})`;
+        cell.innerHTML = `
+          <span class="pt-z">${el.z}</span>
+          <span class="pt-sym">${el.sym}</span>
+          <span class="pt-check">✓</span>
+        `;
+        cell.addEventListener('click', () => selectElement(el.z));
+        ptGrid.appendChild(cell);
+      }
+    }
+  }
+
+  function selectElement(z) {
+    const el = getEl(z);
+    if (!el) return;
+
+    if (el.phase === null) {
+      state.lastTestResult = {
+        ok: false,
+        type: 'warn',
+        label: '🧭 Not on This Ion Chart',
+        html: `<strong>${el.name} (${el.sym})</strong> isn't part of the Phase 1 or Phase 2 ion chart. Pick any highlighted element!`
+      };
+      updateUI();
+      return;
+    }
+
+    if (el.phase === 2 && !state.phase2Unlocked) {
+      state.lastTestResult = {
+        ok: false,
+        type: 'warn',
+        label: '🔒 Phase 2 Locked — Multiple-Charge Elements',
+        html: `<strong>${el.name} (${el.sym})</strong> forms multiple ions! Complete all <strong>${PHASE1_ELEMENTS.length}</strong> Phase 1 elements to unlock Phase 2 (or click <strong>Teacher Unlock</strong> in the top bar).`
+      };
+      updateUI();
+      return;
+    }
+
+    state.z = z;
+    state.leftE = 0;
+    state.rightCharge = 0;
+    state.rightE = 0;
+    state.lastTestResult = null;
+    updateUI();
+  }
+
+  function testCurrentSetup() {
+    const el = getEl(state.z);
+    const leftNet = -state.leftE;
+    const rightNet = state.rightCharge - state.rightE;
+    const isBalanced = (leftNet === rightNet);
+    const hasBothSidesE = (state.leftE > 0 && state.rightE > 0);
+    const isTargetCharge = el.targets.includes(state.rightCharge);
+
+    if (hasBothSidesE) {
+      state.lastTestResult = {
+        ok: false,
+        type: 'warn',
+        label: '🧪 Simplify Electrons',
+        html: `Electrons only belong on <strong>one</strong> side: put them on the <strong>left</strong> if the atom gains electrons, or on the <strong>right</strong> if it loses them.`
+      };
+      updateUI();
+      return;
+    }
+
+    if (!isBalanced) {
+      state.lastTestResult = {
+        ok: false,
+        type: 'unbalanced',
+        label: '❌ Charge Not Balanced',
+        html: `Left charge is <strong>${formatSigned(leftNet)}</strong>, but right charge is <strong>${formatSigned(rightNet)}</strong>. Adjust the product ion or electron tiles until both sides match, then click <strong>Test Setup</strong>.`
+      };
+      updateUI();
+      return;
+    }
+
+    if (!isTargetCharge) {
+      const hint = el.phase === 2
+        ? (el.z === 84
+            ? `<strong>Polonium</strong> forms two cations (losing e⁻) and one anion (gaining e⁻)—try a different electron transfer to find one of its three target ions.`
+            : `<strong>${el.name}</strong> is a multi-charge metal—try losing a different number of electrons to find one of its two common cations.`)
+        : `Your charges balance, but <strong>${el.name}</strong> hasn't reached a stable noble-gas shell yet. Check the Bohr model and try again!`;
+      state.lastTestResult = {
+        ok: false,
+        type: 'warn',
+        label: '✨ Balanced, But Not a Target Ion',
+        html: hint
+      };
+      updateUI();
+      return;
+    }
+
+    // Valid target ion! Record completion
+    if (!state.completedIons.has(el.z)) {
+      state.completedIons.set(el.z, new Set());
+    }
+    const doneSet = state.completedIons.get(el.z);
+    const isNewIon = !doneSet.has(state.rightCharge);
+    doneSet.add(state.rightCharge);
+    if (isNewIon) spawnSparkles();
+
+    // Check automatic Phase 2 unlock
+    let justUnlockedPhase2 = false;
+    if (!state.phase2Unlocked && countMastered(PHASE1_ELEMENTS) === PHASE1_ELEMENTS.length) {
+      state.phase2Unlocked = true;
+      justUnlockedPhase2 = true;
+      spawnSparkles();
+    }
+
+    const info = el.ionInfo[String(state.rightCharge)];
+    const remaining = el.requireAll
+      ? el.targets.filter(t => !doneSet.has(t))
+      : [];
+
+    let extraNote = '';
+    if (remaining.length > 0) {
+      if (el.targets.length === 2) {
+        extraNote = ` <em>(Half-shaded! Now build the other ion for ${el.sym} to fill the tile completely.)</em>`;
+      } else {
+        const noun = remaining.length === 1 ? 'remaining ion' : `${remaining.length} remaining ions`;
+        extraNote = ` <em>(${doneSet.size}/${el.targets.length} complete! Now build the ${noun} for ${el.sym} to fill the tile completely.)</em>`;
+      }
+    } else if (justUnlockedPhase2) {
+      extraNote = ` <strong>🔓 Phase 2 Unlocked!</strong> All ${PHASE2_ELEMENTS.length} multiple-charge elements are now open!`;
+    }
+
+    state.lastTestResult = {
+      ok: true,
+      type: 'stable',
+      label: `🎉 ${formatIonHTML(el.sym, state.rightCharge)} Verified!`,
+      html: `
+        <div class="name-strip">
+          <span class="name-chip">IUPAC: ${info.iupac}</span>
+          ${el.phase === 2 && info.classical ? `<span class="name-chip">Classical: ${info.classical}</span>` : ''}
+        </div>
+        <div>${info.fact}${extraNote}</div>
+      `
+    };
+    updateUI();
+  }
+
+  function updateUI() {
+    const el = getEl(state.z);
+    const p1Done = countMastered(PHASE1_ELEMENTS);
+    const p2Done = countMastered(PHASE2_ELEMENTS);
+
+    // Update Phase UI
+    if (state.phase2Unlocked) {
+      phaseBadge.textContent = 'Phase 2 Unlocked: Multi-Charge';
+      phaseBadge.classList.add('phase2');
+      ptHeaderPrompt.textContent = '1. Periodic Table — Phase 1 & Phase 2 Active (Purple border = multi-charge elements)';
+      progressPill.textContent = `P1: ${p1Done}/${PHASE1_ELEMENTS.length} • P2: ${p2Done}/${PHASE2_ELEMENTS.length}`;
+      btnTeacherUnlock.textContent = '✓ Phase 2 Open';
+    } else {
+      phaseBadge.textContent = 'Phase 1: Single-Charge';
+      phaseBadge.classList.remove('phase2');
+      ptHeaderPrompt.textContent = '1. Periodic Table — Phase 1: Single-Charge Ions (H requires both H⁺ & H⁻)';
+      progressPill.textContent = `P1: ${p1Done} / ${PHASE1_ELEMENTS.length}`;
+      btnTeacherUnlock.textContent = '🔓 Teacher Unlock';
+    }
+
+    // Update Periodic Table cells
+    document.querySelectorAll('.pt-cell').forEach(cell => {
+      const cz = Number(cell.dataset.z);
+      const cel = getEl(cz);
+      const status = getElementStatus(cel);
+      const doneSet = state.completedIons.get(cz);
+      const count = doneSet ? doneSet.size : 0;
+
+      cell.classList.toggle('active', cz === state.z);
+      cell.classList.toggle('var-charge', cel.phase === null);
+      cell.classList.toggle('phase2-locked', cel.phase === 2 && !state.phase2Unlocked);
+      cell.classList.toggle('phase2-open', cel.phase === 2 && state.phase2Unlocked && status === 'none');
+      cell.classList.toggle('half-done', status === 'half');
+      cell.classList.toggle('done', status === 'done');
+
+      if (status === 'half' && cel.targets) {
+        const pct = Math.round((count / cel.targets.length) * 100);
+        cell.style.setProperty('--done-pct', `${pct}%`);
+      } else {
+        cell.style.removeProperty('--done-pct');
+      }
+
+      const checkEl = cell.querySelector('.pt-check');
+      if (checkEl) {
+        if (status === 'half') {
+          if (cel.targets.length === 3) {
+            checkEl.textContent = count === 1 ? '⅓' : '⅔';
+          } else {
+            checkEl.textContent = '½';
+          }
+        } else {
+          checkEl.textContent = '✓';
+        }
+      }
+    });
+
+    // Update Workspace Header & Clickers
+    const doneSet = state.completedIons.get(el.z);
+    const subProgress = el.requireAll
+      ? ` • ${doneSet ? doneSet.size : 0}/${el.targets.length} Ions`
+      : '';
+    selectedName.textContent = `${el.name} (Z = ${el.z}) • Group ${el.c}${subProgress}`;
+
+    leftAtomText.textContent = el.sym;
+    leftEText.textContent = `${state.leftE}e⁻`;
+    rightAtomText.innerHTML = formatIonHTML(el.sym, state.rightCharge);
+    rightEText.textContent = `${state.rightE}e⁻`;
+    bohrHeaderSym.innerHTML = formatIonHTML(el.sym, state.rightCharge);
+
+    leftEBox.classList.toggle('active-val', state.leftE > 0);
+    rightAtomBox.classList.toggle('active-val', state.rightCharge !== 0);
+    rightEBox.classList.toggle('active-val', state.rightE > 0);
+
+    // Real-Time Half-Equation Display
+    liveEqDisplay.innerHTML = formatLiveEquationHTML(el.sym, state.leftE, state.rightCharge, state.rightE);
+
+    const leftNet = -state.leftE;
+    const rightNet = state.rightCharge - state.rightE;
+    leftChargeVal.textContent = formatSigned(leftNet);
+    rightChargeVal.textContent = formatSigned(rightNet);
+
+    // Reaction Type Tag
+    if (state.leftE > 0 && state.rightE > 0) {
+      reactionTypeTag.textContent = 'Electrons on Both Sides';
+    } else if (state.rightE > 0) {
+      reactionTypeTag.textContent = 'Oxidation (Losing e⁻)';
+    } else if (state.leftE > 0) {
+      reactionTypeTag.textContent = 'Reduction (Gaining e⁻)';
+    } else {
+      reactionTypeTag.textContent = '0 e⁻ Transferred';
+    }
+
+    // Status Pill & Feedback Box (Manual Test Setup — no auto-clear!)
+    feedbackBox.classList.remove('fact-mode');
+    if (state.lastTestResult) {
+      const r = state.lastTestResult;
+      if (r.type === 'stable') {
+        statusPill.textContent = 'Verified ✓';
+        statusPill.className = 'status-pill pill-stable';
+        feedbackBox.classList.add('fact-mode');
+      } else if (r.type === 'unbalanced') {
+        statusPill.textContent = 'Unbalanced';
+        statusPill.className = 'status-pill pill-unbalanced';
+      } else {
+        statusPill.textContent = 'Check Setup';
+        statusPill.className = 'status-pill pill-warn';
+      }
+      feedbackLabel.innerHTML = r.label;
+      feedbackText.innerHTML = r.html;
+    } else {
+      statusPill.textContent = 'Ready to Test';
+      statusPill.className = 'status-pill pill-warn';
+      feedbackLabel.textContent = '🧪 Lab Note';
+      if (el.z === 1) {
+        feedbackText.innerHTML = `<strong>Hydrogen</strong> is dual-path! Build both <strong>H⁺</strong> (lose 1e⁻) and <strong>H⁻</strong> (gain 1e⁻), clicking <strong>Test Setup</strong> after each.`;
+      } else if (el.fam === 'noble') {
+        feedbackText.innerHTML = `<strong>${el.name}</strong> is a noble gas. If it transfers <strong>0 electrons</strong>, click <strong>Test Setup</strong> to intentionally confirm it!`;
+      } else if (el.z === 84) {
+        feedbackText.innerHTML = `<strong>Polonium</strong> sits right on the metal/metalloid staircase! Build all <strong>3</strong> of its ions (<strong>Po²⁺</strong>, <strong>Po⁴⁺</strong>, and <strong>Po²⁻</strong>), clicking <strong>Test Setup</strong> after each.`;
+      } else if (el.phase === 2) {
+        feedbackText.innerHTML = `<strong>${el.name}</strong> is a Phase 2 multi-charge metal. Build its first cation and click <strong>Test Setup</strong> to half-shade the tile, then build its second!`;
+      } else {
+        feedbackText.innerHTML = `Tap the electron and product ion tiles to build <strong>${el.name}'s</strong> stable ion, then click <strong>Test Setup</strong> to verify.`;
+      }
+    }
+
+    // Update Bohr Stats & Shell Banner
+    const rightElectrons = el.z - state.rightCharge;
+    peCount.textContent = `${el.z}p⁺ / ${rightElectrons}e⁻`;
+
+    if (el.z <= 20) {
+      const shells = getShellCounts(rightElectrons);
+      const activeShells = shells.filter(c => c > 0);
+      shellConfig.textContent = activeShells.length ? activeShells.join(', ') : '0 (Empty)';
+
+      const outerIdx = shells.findLastIndex(c => c > 0);
+      if (rightElectrons === 0) {
+        shellBanner.textContent = '0 electrons (bare proton!)';
+        shellBanner.className = 'shell-banner full';
+      } else {
+        const emptySpots = SHELL_CAPS[outerIdx] - shells[outerIdx];
+        if (emptySpots === 0) {
+          shellBanner.textContent = '✨ Full outer shell!';
+          shellBanner.className = 'shell-banner full';
+        } else {
+          shellBanner.textContent = `${emptySpots} empty spot${emptySpots === 1 ? '' : 's'} in outer shell`;
+          shellBanner.className = 'shell-banner';
+        }
+      }
+    } else {
+      const vAfter = Math.max(0, (el.val ?? 4) - state.rightCharge);
+      shellConfig.textContent = vAfter === 0 ? `[${el.core}] Core` : `[${el.core}], ${vAfter}v`;
+      if (el.z === 84 && vAfter === 8) {
+        shellBanner.textContent = '✨ Full outer shell! (Polonide octet)';
+        shellBanner.className = 'shell-banner full';
+      } else if (el.phase === 2) {
+        shellBanner.textContent = `Multi-charge d/p-block (${vAfter} outer e⁻ shown)`;
+        shellBanner.className = 'shell-banner';
+      } else if (vAfter === 0 || vAfter === 8) {
+        shellBanner.textContent = '✨ Full outer shell!';
+        shellBanner.className = 'shell-banner full';
+      } else {
+        const empty = 8 - vAfter;
+        shellBanner.textContent = `${empty} empty spot${empty === 1 ? '' : 's'} in outer shell`;
+        shellBanner.className = 'shell-banner';
+      }
+    }
+  }
+
+  function renderBohrLoop() {
+    state.orbitAngle += 0.004;
+    const el = getEl(state.z);
+    const rect = bohrWrap.getBoundingClientRect();
+
+    if (rect.width > 0 && rect.height > 0) {
+      const dpr = window.devicePixelRatio || 1;
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const w = rect.width;
+      const h = rect.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const maxR = Math.min(w, h) / 2 - 12;
+
+      const styles = getComputedStyle(htmlEl);
+      const electronColor = styles.getPropertyValue('--electron').trim();
+      const accentColor = styles.getPropertyValue('--accent').trim();
+      const borderColor = styles.getPropertyValue('--border').trim();
+      const textMuted = styles.getPropertyValue('--text-muted').trim();
+
+      ctx.clearRect(0, 0, w, h);
+
+      const rightElectrons = el.z - state.rightCharge;
+      let rings = [];
+
+      if (el.z <= 20) {
+        const shells = getShellCounts(rightElectrons);
+        const lastActive = shells.findLastIndex(c => c > 0);
+        const visible = Math.max(1, lastActive + 1);
+        for (let s = 0; s < visible; s++) {
+          rings.push({ count: shells[s], cap: SHELL_CAPS[s], isOuter: s === visible - 1 });
+        }
+      } else {
+        const vAfter = Math.max(0, (el.val ?? 4) - state.rightCharge);
+        rings.push({ count: vAfter, cap: 8, isOuter: true });
+      }
+
+      const nucleusR = Math.max(22, Math.min(28, maxR * 0.28));
+      const ringStep = (maxR - nucleusR - 6) / rings.length;
+
+      rings.forEach((ring, s) => {
+        const r = nucleusR + ringStep * (s + 1);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        const totalSlots = ring.isOuter ? ring.cap : ring.count;
+        const dir = s % 2 === 0 ? 1 : -1;
+        for (let i = 0; i < totalSlots; i++) {
+          const angle = (i / totalSlots) * Math.PI * 2 - Math.PI / 2 + state.orbitAngle * dir;
+          const ex = cx + Math.cos(angle) * r;
+          const ey = cy + Math.sin(angle) * r;
+
+          ctx.beginPath();
+          ctx.arc(ex, ey, 5.5, 0, Math.PI * 2);
+
+          if (i < ring.count) {
+            ctx.fillStyle = electronColor;
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          } else {
+            ctx.setLineDash([2.5, 2.5]);
+            ctx.strokeStyle = textMuted;
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        }
+      });
+
+      // Nucleus
+      ctx.beginPath();
+      ctx.arc(cx, cy, nucleusR, 0, Math.PI * 2);
+      ctx.fillStyle = accentColor;
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 14px "Trebuchet MS", "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(el.sym, cx, cy - 5);
+
+      ctx.font = '700 9px ui-monospace, SFMono-Regular, monospace';
+      ctx.fillText(el.z <= 20 ? `${el.z}p⁺` : `[${el.core}]`, cx, cy + 8);
+
+      // Celebratory Sparkles
+      for (let i = state.sparkles.length - 1; i >= 0; i--) {
+        const p = state.sparkles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.025;
+        if (p.life <= 0) {
+          state.sparkles.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    requestAnimationFrame(renderBohrLoop);
+  }
+
+  // Controls
+  leftEBox.addEventListener('click', () => {
+    state.leftE = (state.leftE + 1) % 6;
+    state.lastTestResult = null;
+    updateUI();
+  });
+
+  rightAtomBox.addEventListener('click', () => {
+    state.rightCharge = nextCharge(state.rightCharge, getEl(state.z));
+    state.lastTestResult = null;
+    updateUI();
+  });
+
+  rightEBox.addEventListener('click', () => {
+    state.rightE = (state.rightE + 1) % 6;
+    state.lastTestResult = null;
+    updateUI();
+  });
+
+  btnTestSetup.addEventListener('click', testCurrentSetup);
+
+  btnTeacherUnlock.addEventListener('click', () => {
+    state.phase2Unlocked = !state.phase2Unlocked;
+    if (!state.phase2Unlocked && getEl(state.z).phase === 2) {
+      state.z = 11;
+      state.leftE = 0;
+      state.rightCharge = 0;
+      state.rightE = 0;
+    }
+    state.lastTestResult = null;
+    updateUI();
+  });
+
+  btnReset.addEventListener('click', () => {
+    state.leftE = 0;
+    state.rightCharge = 0;
+    state.rightE = 0;
+    state.lastTestResult = null;
+    updateUI();
+  });
+
+  themeToggle.addEventListener('click', () => {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    htmlEl.setAttribute('data-theme', state.theme);
+    themeToggle.textContent = state.theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+    updateUI();
+  });
+
+  // Init
+  buildPeriodicTable();
+  updateUI();
+  requestAnimationFrame(renderBohrLoop);
+})();
+</script>
+</body>
+</html>
